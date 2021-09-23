@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         /**
          * 销毁 AgoraRteSDK 对象。
          *
-         * @returns
+         * @return
          * 0：方法调用成功。
          * <0：方法调用失败。
          */
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
          * 初始化 SDK。
          * @param config SDK 配置。
          *
-         * @returns AgoraRteScene 对象。
+         * @return AgoraRteScene 对象。
          */
         AgoraRteSDK.init(config);
     }
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
          * @param sceneId 用于标识 Scene 的 ID。
          * @param sceneConfig scene 配置。
          *
-         * @returns AgoraRteScene 对象。
+         * @return AgoraRteScene 对象。
          */
         mScene = AgoraRteSDK.createRteScene(sceneId, sceneConfig);
 
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
          * @param token 用于鉴权的 Token。
          * @param options 加入 scene 选项。
          *
-         * @returns
+         * @return
          * 0：方法调用成功。
          * <0：方法调用失败。
          */
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
                      * @param streamId 用于标识流的 ID。在一个 scene 中必须唯一。
                      * @param streamOption 发流选项。
                      *
-                     * @returns
+                     * @return
                      * 0：方法调用成功。
                      * <0：方法调用失败。
                      *
@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
                          * 设置预览画布。
                          * @param canvas AgoraRteVideoCanvas 对象。
                          *
-                         * @returns
+                         * @return
                          * 0：方法调用成功。
                          * <0：方法调用失败。
                          */
@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                          * 开始摄像头采集。
                          * @param agoraRteCameraCaptureObserver 摄像头状态监听器。
                          *
-                         * @returns
+                         * @return
                          * 0：方法调用成功。
                          * <0：方法调用失败。
                          */
@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                      * @param streamId 本地流的 ID。
                      * @param videoTrack 要发布的视频轨道。
                      *
-                     * @returns
+                     * @return
                      * 0：方法调用成功。
                      * <0：方法调用失败。
                      */
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                      * @param streamId 本地流的 ID。
                      * @param audioTrack 要发布的视频轨道。
                      *
-                     * @returns
+                     * @return
                      * 0：方法调用成功。
                      * <0：方法调用失败。
                      */
