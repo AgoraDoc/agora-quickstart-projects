@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         // 1. 初始化 SDK
         initAgoraRteSDK();
-        // 2. 创建并加入 scene
+        // 2. 创建并加入 scene, 监听远端媒体流并发送本地媒体流
         createAndJoinScene(sceneId, userId, token);
     }
 
