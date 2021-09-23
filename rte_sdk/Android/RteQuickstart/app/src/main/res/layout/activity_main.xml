@@ -9,19 +9,21 @@
     <FrameLayout
         android:id="@+id/local_video_view_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="480dp"
         android:background="@android:color/white" />
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/remote_video_view_container"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
+        android:layout_width="408dp"
+        android:layout_height="247dp"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
-        android:background="@android:color/darker_gray" />
+        android:layout_marginTop="484dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginRight="0dp"
+        android:background="@android:color/darker_gray"
+        android:isScrollContainer="true"
+        android:orientation="horizontal" />
 
 </RelativeLayout>
