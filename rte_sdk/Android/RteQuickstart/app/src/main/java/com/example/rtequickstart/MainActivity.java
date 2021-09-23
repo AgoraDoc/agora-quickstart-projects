@@ -16,6 +16,7 @@ import java.util.Random;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.LinearLayout;
 
 import io.agora.rte.AgoraRteSDK;
 import io.agora.rte.AgoraRteSdkConfig;
@@ -294,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
 
                         for (AgoraRteMediaStreamInfo info : streams) {
-                            FrameLayout container = findViewById(R.id.remote_video_view_container);
+                            LinearLayout container = findViewById(R.id.remote_video_view_container);
                             SurfaceView view = new SurfaceView (getBaseContext());
                             view.setTag(info.getStreamId());
                             container.addView(view);
