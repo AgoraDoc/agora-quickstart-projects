@@ -199,8 +199,6 @@ public class MainActivity extends AppCompatActivity {
 
                     FrameLayout container = findViewById(R.id.local_video_view_container);
 
-                    System.out.println("这里还好好的啊 00");
-
                     mMediaFactory = AgoraRteSDK.getRteMediaFactory();
 
                     // 创建摄像头视频轨道
@@ -209,8 +207,9 @@ public class MainActivity extends AppCompatActivity {
                      *
                      * @return AgoraRteCameraVideoTrack 对象。
                      */
+                    // TODO: 这里在 AS 自带模拟器和真机上都会 crash。但是夜神模拟器不会 crash，但渲染异常。本地渲染和远端渲染不能同时出现。需要继续调查。
                     mLocalVideoTrack = mMediaFactory.createCameraVideoTrack();
-                    System.out.println("这里还好好的啊 01");
+
                     // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
                     SurfaceView view = new SurfaceView(getBaseContext());
                     container.addView(view);
