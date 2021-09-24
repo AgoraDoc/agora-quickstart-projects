@@ -22,6 +22,7 @@ import io.agora.rte.AgoraRteSdkConfig;
 
 import io.agora.rte.base.AgoraRteLogConfig;
 
+import io.agora.rte.media.AgoraRteMediaFactory;
 import io.agora.rte.media.camera.AgoraRteCameraCaptureObserver;
 import io.agora.rte.media.camera.AgoraRteCameraSource;
 import io.agora.rte.media.camera.AgoraRteCameraState;
@@ -71,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
     public AgoraRteMicrophoneAudioTrack mLocalAudioTrack;
     // 加入 scene 选项对象
     public AgoraRteSceneJoinOptions options;
+
+    public AgoraRteMediaFactory mMediaFactory;
 
     // 处理设备权限
     private static final int PERMISSION_REQ_ID = 22;
@@ -179,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (newState == AgoraRteSceneConnState.CONN_STATE_CONNECTED) {
                     System.out.println("连接状态已从 " + oldState.toString() + " 变更为 " + newState.toString() + "原因是： " + reason.toString());
+
                     // 创建实时音视频流
                     AgoraRtcStreamOptions streamOption = new AgoraRtcStreamOptions();
                     /**
@@ -192,17 +196,25 @@ public class MainActivity extends AppCompatActivity {
                      *
                      */
                     mScene.createOrUpdateRTCStream(streamId, streamOption);
+
                     FrameLayout container = findViewById(R.id.local_video_view_container);
+
+                    System.out.println("这里还好好的啊 00");
+
+                    mMediaFactory = AgoraRteSDK.getRteMediaFactory();
+
                     // 创建摄像头视频轨道
                     /**
                      * 创建摄像头采集视频轨道
                      *
                      * @return AgoraRteCameraVideoTrack 对象。
                      */
-                    mLocalVideoTrack = AgoraRteSDK.getRteMediaFactory().createCameraVideoTrack();
+                    mLocalVideoTrack = mMediaFactory.createCameraVideoTrack();
+                    System.out.println("这里还好好的啊 01");
                     // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
-                    SurfaceView view = new SurfaceView (getBaseContext());
+                    SurfaceView view = new SurfaceView(getBaseContext());
                     container.addView(view);
+
                     AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
                     if (mLocalVideoTrack != null) {
                         // 设置本地预览的 Canvas
@@ -254,7 +266,8 @@ public class MainActivity extends AppCompatActivity {
                      */
                     mScene.publishLocalVideoTrack(streamId, mLocalVideoTrack);
                     // 创建麦克风音频轨道
-                    mLocalAudioTrack = AgoraRteSDK.getRteMediaFactory().createMicrophoneAudioTrack();
+
+                    mLocalAudioTrack = mMediaFactory.createMicrophoneAudioTrack();
                     // 开始麦克风采集音频
                     /**
                      * 开始录制音频。
@@ -320,9 +333,6 @@ public class MainActivity extends AppCompatActivity {
 
                 streamInfoList = streams;
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
 
                         for (AgoraRteMediaStreamInfo info : streams) {
 
@@ -358,8 +368,6 @@ public class MainActivity extends AppCompatActivity {
                             mScene.setRemoteVideoCanvas(info.getStreamId(), canvas);
 
                         }
-                    }
-                });
 
             }
 
@@ -380,9 +388,7 @@ public class MainActivity extends AppCompatActivity {
 
                 System.out.println("当前流 ID 列表： " + streams.toString());
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+
 
                         for (AgoraRteMediaStreamInfo info : streamInfoRemoveList) {
 
@@ -404,8 +410,6 @@ public class MainActivity extends AppCompatActivity {
                             mScene.unsubscribeRemoteAudio(info.getStreamId());
 
                         }
-                    }
-                });
 
             }
         };
