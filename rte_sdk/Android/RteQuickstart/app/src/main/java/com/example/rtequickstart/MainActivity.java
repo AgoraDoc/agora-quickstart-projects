@@ -96,9 +96,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // 1. 初始化 SDK
+        // 1. 初始化 AgoraRteSceneEventHandler 对象
+        initListener();
+        // 2. 初始化 SDK
         initAgoraRteSDK();
-        // 2. 创建并加入 scene, 监听远端媒体流并发送本地媒体流
+        // 3. 创建并加入 scene, 监听远端媒体流并发送本地媒体流
         createAndJoinScene(sceneId, userId, token);
     }
 
@@ -149,9 +151,6 @@ public class MainActivity extends AppCompatActivity {
          * @return AgoraRteScene 对象。
          */
         mScene = AgoraRteSDK.createRteScene(sceneId, sceneConfig);
-
-        // 初始化 AgoraRteSceneEventHandler 对象
-        initListener();
 
         // 注册 scene event handler
         mScene.registerSceneEventHandler(mAgoraHandler);
