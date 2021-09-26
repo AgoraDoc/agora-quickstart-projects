@@ -5,17 +5,20 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.util.TypedValue;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 
 import android.os.Bundle;
+import android.widget.LinearLayout;
 
 import io.agora.rte.AgoraRteSDK;
 import io.agora.rte.AgoraRteSdkConfig;
@@ -42,6 +45,7 @@ import io.agora.rte.scene.AgoraRteSceneJoinOptions;
 
 import io.agora.rte.user.AgoraRteUserInfo;
 
+
 public class MainActivity extends AppCompatActivity {
 
     // 将 <Your App ID> 替换为你的 Agora app ID
@@ -58,8 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private String streamId = String.valueOf(new Random().nextInt(1024));
 
     // 远端 stream ID 列表
-    public List<AgoraRteMediaStreamInfo> streamInfoList = new ArrayList<>();
-    public List<AgoraRteMediaStreamInfo> streamInfoRemoveList = new ArrayList<>();
+    // public List<AgoraRteMediaStreamInfo> streamInfoList = new ArrayList<>();
 
 
     // Scene 对象
@@ -96,11 +99,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // 1. 初始化 AgoraRteSceneEventHandler 对象
-        initListener();
-        // 2. 初始化 SDK
+        // 1. 初始化 SDK
         initAgoraRteSDK();
-        // 3. 创建并加入 scene, 监听远端媒体流并发送本地媒体流
+        // 2. 初始化 AgoraRteSceneEventHandler 对象
+        initListener();
+        // 3. 申请设备权限。权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
             createAndJoinScene(sceneId, userId, token);
@@ -330,45 +333,54 @@ public class MainActivity extends AppCompatActivity {
             public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
                 super.onRemoteStreamAdded(streams);
 
-                System.out.println("当前流 ID 列表： " + streams.toString());
+                for (AgoraRteMediaStreamInfo info : streams) {
 
-                streamInfoList = streams;
+                    /**
+                     * 订阅远端视频。
+                     *
+                     * @param remoteStreamId 远端流 ID。
+                     * @param videoSubscribeOption 订阅选项。
+                     */
+                    mScene.subscribeRemoteVideo(info.getStreamId(), new AgoraRteVideoSubscribeOptions());
+                    /**
+                     * 订阅远端音频。
+                     *
+                     * @param remoteStreamId 远端流 ID。
+                     */
+                    mScene.subscribeRemoteAudio(info.getStreamId());
 
+                    LinearLayout container = findViewById(R.id.remote_video_view_container);
+                    SurfaceView view = new SurfaceView (getBaseContext());
 
-                        for (AgoraRteMediaStreamInfo info : streams) {
+                    view.setZOrderMediaOverlay(true);
 
-                            /**
-                             * 订阅远端视频。
-                             *
-                             * @param remoteStreamId 远端流 ID。
-                             * @param videoSubscribeOption 订阅选项。
-                             */
-                            mScene.subscribeRemoteVideo(info.getStreamId(), new AgoraRteVideoSubscribeOptions());
-                            /**
-                             * 订阅远端音频。
-                             *
-                             * @param remoteStreamId 远端流 ID。
-                             */
-                            mScene.subscribeRemoteAudio(info.getStreamId());
+                    view.setTag(info.getStreamId());
 
-                            FrameLayout container = findViewById(R.id.remote_video_view_container);
-                            SurfaceView view = new SurfaceView (getBaseContext());
-                            view.setTag(info.getStreamId());
-                            container.addView(view);
+                    view.setId(ViewCompat.generateViewId());
+                    view.setSaveEnabled(true);
 
-                            AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
-                            /**
-                             * 设置远端视频渲染画布。
-                             * @param remoteStreamId 远端流的 ID。
-                             * @param canvas AgoraVideoCanvas 对象。
-                             *
-                             * @return
-                             * 0：方法调用成功。
-                             * <0：方法调用失败。
-                             */
-                            mScene.setRemoteVideoCanvas(info.getStreamId(), canvas);
+                    ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
+                    container.addView(view, -1, layoutParams);
 
-                        }
+                    AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
+                    /**
+                     * public static final int RENDER_MODE_HIDDEN = 1;
+                     * public static final int RENDER_MODE_FIT = 2;
+                     * public static final int RENDER_MODE_ADAPTIVE = 3;
+                     */
+                    canvas.renderMode = 2;
+                    /**
+                     * 设置远端视频渲染画布。
+                     * @param remoteStreamId 远端流的 ID。
+                     * @param canvas AgoraVideoCanvas 对象。
+                     *
+                     * @return
+                     * 0：方法调用成功。
+                     * <0：方法调用失败。
+                     */
+                    mScene.setRemoteVideoCanvas(info.getStreamId(), canvas);
+
+                }
 
             }
 
@@ -381,34 +393,26 @@ public class MainActivity extends AppCompatActivity {
             public void onRemoteStreamRemoved(List<AgoraRteMediaStreamInfo> streams) {
                 super.onRemoteStreamRemoved(streams);
 
-                for (AgoraRteMediaStreamInfo info : streamInfoList){
-                    if (!streams.contains(info)){
-                        streamInfoRemoveList.add(info);
-                    }
+                for (AgoraRteMediaStreamInfo info : streams) {
+
+                    LinearLayout container = findViewById(R.id.remote_video_view_container);
+                    View view = container.findViewWithTag(info.getStreamId());
+                    container.removeView(view);
+
+                    /**
+                     * 取消订阅视频。
+                     *
+                     * @param remoteStreamId 远端流的 ID。
+                     */
+                    mScene.unsubscribeRemoteVideo(info.getStreamId());
+                    /**
+                     * 取消订阅音频。
+                     *
+                     * @param remoteStreamId 远端流的 ID。
+                     */
+                    mScene.unsubscribeRemoteAudio(info.getStreamId());
+
                 }
-
-                System.out.println("当前流 ID 列表： " + streams.toString());
-
-                        for (AgoraRteMediaStreamInfo info : streamInfoRemoveList) {
-
-                            FrameLayout container = findViewById(R.id.remote_video_view_container);
-                            View view = container.findViewWithTag(info.getStreamId());
-                            container.removeView(view);
-
-                            /**
-                             * 取消订阅视频。
-                             *
-                             * @param remoteStreamId 远端流的 ID。
-                             */
-                            mScene.unsubscribeRemoteVideo(info.getStreamId());
-                            /**
-                             * 取消订阅音频。
-                             *
-                             * @param remoteStreamId 远端流的 ID。
-                             */
-                            mScene.unsubscribeRemoteAudio(info.getStreamId());
-
-                        }
 
             }
         };
