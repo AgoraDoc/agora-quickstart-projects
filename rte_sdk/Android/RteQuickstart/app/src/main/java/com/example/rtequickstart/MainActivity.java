@@ -210,8 +210,6 @@ public class MainActivity extends AppCompatActivity {
                      *
                      * @return AgoraRteCameraVideoTrack 对象。
                      */
-                    // TODO: 这里在 AS 自带模拟器和真机上都会 crash。但是夜神模拟器不会 crash，但渲染异常。本地渲染和远端渲染不能同时出现。需要继续调查。
-                    // TODO: 初步怀疑是需要先初始化 AgoraRteSceneEventHandler 再初始化 AgoraRteSdk。否则会造成 AgoraRteSceneEventHandler 中创建 CameraVideoTrack crash。
                     mLocalVideoTrack = mMediaFactory.createCameraVideoTrack();
 
                     // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
