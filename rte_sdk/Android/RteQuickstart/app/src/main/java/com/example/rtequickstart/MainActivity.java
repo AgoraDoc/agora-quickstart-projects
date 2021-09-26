@@ -101,7 +101,11 @@ public class MainActivity extends AppCompatActivity {
         // 2. 初始化 SDK
         initAgoraRteSDK();
         // 3. 创建并加入 scene, 监听远端媒体流并发送本地媒体流
-        createAndJoinScene(sceneId, userId, token);
+        if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
+                checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
+            createAndJoinScene(sceneId, userId, token);
+        }
+
     }
 
     protected void onDestroy() {
@@ -386,8 +390,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 System.out.println("当前流 ID 列表： " + streams.toString());
-
-
 
                         for (AgoraRteMediaStreamInfo info : streamInfoRemoveList) {
 
