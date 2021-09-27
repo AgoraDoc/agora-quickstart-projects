@@ -255,13 +255,13 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         }
         ```
 
-    - `initListener`：初始化 `AgoraRteSceneEventHandler` 对象。你需要在 `AgoraRteSceneEventHandler` 对象的相关回调中实现媒体流的发布与接收逻辑。
+    - `registerEventHandler`：初始化 `AgoraRteSceneEventHandler` 对象。你需要在 `AgoraRteSceneEventHandler` 对象的相关回调中实现媒体流的发布与接收逻辑。
         - 媒体流发布：本地用户成功加入场景时（`onConnectionStateChanged` 回调返回 `CONN_STATE_CONNECTED` 时）开始发布媒体流。
         - 媒体流接收：收到远端用户发送的流时（`onRemoteStreamAdded` 被触发时）对远端媒体流进行渲染。
 
         ```java
         // 初始化 AgoraRteSceneEventHandler 对象
-        public void initListener(){
+        public void registerEventHandler(){
             // 创建 AgoraRteSceneEventHandler 对象
             mAgoraHandler = new AgoraRteSceneEventHandler() {
                 @Override
@@ -547,7 +547,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         // 1. 初始化 SDK
         initAgoraRteSDK();
         // 2. 初始化 AgoraRteSceneEventHandler 对象
-        initListener();
+        registerEventHandler();
         // 3. 申请设备权限。权限申请成功后，创建并加入场景, 监听远端媒体流并发送本地媒体流
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
