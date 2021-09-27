@@ -8,7 +8,11 @@
 
 下图展示在 app 中集成 Agora 的基本工作流程：
 
-![workflow](images/workflow.png)
+![tech](images/start_call.svg)
+
+1. 客户端创建媒体轨道。
+2. 客户端加入场景。
+3. 客户端在场景中发布/接收流。
 
 ## 前提条件
 
@@ -85,8 +89,6 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <!-- 使用屏幕共享功能时需要 FOREGROUND_SERVICE 权限 -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     ```
 
 4. 防止代码混淆。
@@ -202,7 +204,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     ```java
     // 你的 Agora App ID
     private String appId = "<Your App ID>";
-    // 你的 Agora scene 名。本示例设为 "testScene"
+    // 你的 Agora 场景名。本示例设为 "testScene"
     private String sceneId = "testScene";
     // 用户 ID。本示例自动生成随机 user ID
     private String userId = String.valueOf(new Random().nextInt(1024));
@@ -213,7 +215,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     // 流 ID。本示例自动生成随机流 ID
     private String streamId = String.valueOf(new Random().nextInt(1024));
 
-    // Scene 对象
+    // 场景对象
     public AgoraRteScene mScene;
     // Scene 事件处理对象
     public AgoraRteSceneEventHandler mAgoraHandler;
@@ -221,7 +223,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     public AgoraRteCameraVideoTrack mLocalVideoTrack;
     // 麦克风音频轨道对象
     public AgoraRteMicrophoneAudioTrack mLocalAudioTrack;
-    // 加入 scene 选项对象
+    // 加入场景选项对象
     public AgoraRteSceneJoinOptions options;
     // 媒体工厂对象
     public AgoraRteMediaFactory mMediaFactory;
@@ -252,7 +254,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         ```
 
     - `initListener`：初始化 `AgoraRteSceneEventHandler` 对象。你需要在 `AgoraRteSceneEventHandler` 对象的相关回调中实现媒体流的发布与接收逻辑。
-        - 媒体流发布：本地用户成功加入 scene 时（`onConnectionStateChanged` 回调返回 `CONN_STATE_CONNECTED` 时）开始发布媒体流。
+        - 媒体流发布：本地用户成功加入场景时（`onConnectionStateChanged` 回调返回 `CONN_STATE_CONNECTED` 时）开始发布媒体流。
         - 媒体流接收：收到远端用户发送的流时（`onRemoteStreamAdded` 被触发时）对远端媒体流进行渲染。
 
         ```java
@@ -271,7 +273,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
                         AgoraRtcStreamOptions streamOption = new AgoraRtcStreamOptions();
                         /**
                         * 创建或更新 RTC 流。
-                        * @param streamId 用于标识流的 ID。在一个 scene 中必须唯一。
+                        * @param streamId 用于标识流的 ID。在一个场景中必须唯一。
                         * @param streamOption 发流选项。
                         *
                         * @return
@@ -377,11 +379,11 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
                     }
                 }
 
-                // 远端用户加入 scene 时触发
+                // 远端用户加入场景时触发
 
                 /**
-                * 远端用户加入 scene 时触发。
-                * @param users scene 中在线的用户列表。
+                * 远端用户加入场景时触发。
+                * @param users 场景中在线的用户列表。
                 */
                 @Override
                 public void onRemoteUserJoined(List<AgoraRteUserInfo> users) {
@@ -389,11 +391,11 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
                     System.out.println(users.toString());
                 }
 
-                // 远端用户离开 scene 时触发
+                // 远端用户离开场景时触发
 
                 /**
-                * 远端用户离开 scene 时触发。
-                * @param users scene 中在线的用户列表。
+                * 远端用户离开场景时触发。
+                * @param users 场景中在线的用户列表。
                 */
                 @Override
                 public void onRemoteUserLeft(List<AgoraRteUserInfo> users) {
@@ -405,7 +407,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
                 /**
                 * 远端用户发流时触发。
-                * @param streams scene 中的流列表。
+                * @param streams 场景中的流列表。
                 */
                 @Override
                 public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
@@ -497,16 +499,16 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         }
         ```
 
-    - `createAndJoinScene`：创建并加入 scene。只有加入相同 scene 的用户才可以互相发送和接收媒体流。
+    - `createAndJoinScene`：创建并加入场景。只有加入相同场景的用户才可以互相发送和接收媒体流。
 
         ```java
         public void createAndJoinScene(String sceneId, String userId, String token) {
-        // 创建 scene
+        // 创建场景
         AgoraRteSceneConfig sceneConfig = new AgoraRteSceneConfig();
         /**
-         * 创建 scene。
-         * @param sceneId 用于标识 Scene 的 ID。
-         * @param sceneConfig scene 配置。
+         * 创建场景
+         * @param sceneId 用于标识场景的 ID。
+         * @param sceneConfig 场景配置。
          *
          * @return AgoraRteScene 对象。
          */
@@ -519,10 +521,10 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         options.setUserVisibleToRemote(true);
 
         /**
-         * 加入 scene。
-         * @param userId 用于标识用户的 ID。在一个 scene 中必须唯一。
+         * 加入场景
+         * @param userId 用于标识用户的 ID。在一个场景中必须唯一。
          * @param token 用于鉴权的 Token。
-         * @param options 加入 scene 选项。
+         * @param options 加入场景选项。
          *
          * @return
          * 0：方法调用成功。
@@ -544,7 +546,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         initAgoraRteSDK();
         // 2. 初始化 AgoraRteSceneEventHandler 对象
         initListener();
-        // 3. 申请设备权限。权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+        // 3. 申请设备权限。权限申请成功后，创建并加入场景, 监听远端媒体流并发送本地媒体流
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
             createAndJoinScene(sceneId, userId, token);
@@ -553,15 +555,15 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     }
     ```
 
-5. 在 `onCreate` 回调后定义 `onDestroy` 回调。在 `onDestroy` 回调中离开 scene 并销毁 AgoraRteSDK 对象。
+5. 在 `onCreate` 回调后定义 `onDestroy` 回调。在 `onDestroy` 回调中离开场景并销毁 AgoraRteSDK 对象。
 
     ```java
     protected void onDestroy() {
         super.onDestroy();
 
-        // 3. 离开 scene
+        // 3. 离开场景
         /**
-         * 离开 scene。
+         * 离开场景。
          */
         mScene.leave();
         // 4. 销毁 AgoraRteSDK 对象
