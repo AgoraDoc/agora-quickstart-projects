@@ -64,7 +64,9 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 ### 集成 Agora SDK
 
-打开 SDK 包 `libs` 文件夹，将以下文件或子文件夹复制到你的项目路径中。如果你不需要通过 C++ 接口使用 SDK，则无需 `api` 文件夹。
+1. 获取最新版本的 Agora RTE SDK ，并解压。
+
+2. 打开 SDK 包 `libs` 文件夹，将以下文件或子文件夹复制到你的项目路径中。如果你不需要通过 C++ 接口使用 SDK，则无需 `api` 文件夹。
 
 | 文件或子文件夹           | 项目路径                 |
 | ------------------------ | ------------------------ |
@@ -75,15 +77,15 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 | `x86_64` 文件夹          | `/app/src/main/jniLibs/` |
 | `api` 文件夹（可选）      | `/app/src/main/jniLibs/` |
 
-在 `/Gradle Scripts/build.gradle(Module: rtequickstart.app)` 文件中， 对本地 Jar 包添加依赖：
+3. 在 `/Gradle Scripts/build.gradle(Module: rtequickstart.app)` 文件中， 对本地 Jar 包添加依赖：
 
-```gradle
-implementation fileTree(dir: 'libs', include: [ '*.jar' ])
-```
+    ```gradle
+    implementation fileTree(dir: 'libs', include: [ '*.jar' ])
+    ```
 
 ### 防止代码混淆
 
-在 `/Gradle Scripts/proguard-rules.pro` 文件中添加如下代码，防止混淆 Agora SDK 的代码：
+在 `/Gradle Scripts/proguard-rules.pro` 文件中添加如下代码，防止混淆 Agora SDK 的代码：`
 
 ```text
 -keep class io.agora.**{*;}
@@ -533,7 +535,6 @@ implementation fileTree(dir: 'libs', include: [ '*.jar' ])
         mScene.join(userId, token, options);
         }
         ```
-
 
 4. 在 `onCreate` 回调中按顺序调用定义的基本方法。
 
