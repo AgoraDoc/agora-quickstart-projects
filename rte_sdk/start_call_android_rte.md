@@ -25,7 +25,11 @@
 - 可以访问互联网的计算机，且网络环境未部署防火墙。
 - 运行 Android 4.1 或以上版本的移动设备或模拟器。
 
-## 创建 Agora 项目
+## 在客户端构建视频通话应用
+
+本节介绍如何使用 Agora SDK 在客户端构建视频通话应用。
+
+### 创建 Agora 项目
 
 按照以下步骤，在控制台创建一个 Agora 项目。如果你已经创建了 Agora 项目，请确保项目的鉴权机制是 **APP ID**。
 
@@ -35,11 +39,11 @@
 
    [![img](https://web-cdn.agora.io/docs-files/1594287028966)](https://dashboard.agora.io/projects)
 
-3. 在弹出的对话框内输入**项目名称**，选择**鉴权机制**为 **APP ID**。<div class="alert note">Agora 推荐只在测试环境，或对安全要求不高的场景里使用 App ID 鉴权。</div>
+3. 在弹出的对话框内输入**项目名称**，选择**鉴权机制**为 **APP ID**。Agora 推荐只在测试环境，或对安全要求不高的场景里使用 App ID 鉴权。
 
 4. 点击**提交**，新建的项目就会显示在**项目管理**页中。
 
-## 获取 App ID
+### 获取 App ID
 
 Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
@@ -47,63 +51,57 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 ![获取 appid](https://web-cdn.agora.io/docs-files/1631254702038)
 
-## 创建 Android 项目
+### 创建 Android 项目
 
-按照以下步骤准备开发环境：
+打开 Android Studio，在 **Welcome to Android Studio** 窗口中，点击 **Create New Project**。依次选择 **Phone and Tablet** > **Empty Activity**，创建 Android 项目。项目参数设置如下：
 
-1. 在 Android Studio 里，依次选择 **Phone and Tablet** > **Empty Activity**，创建 Android 项目。项目参数设置如下：
+- **Name**: RteQuickstart
+- **Package name**: com.example.rtequickstart
+- **Language**: Java
+- **Minimum SDK**: API 16: Android 4.1 (Jelly Bean)
 
-    - **Name**: RteQuickstart
-    - **Package name**: com.example.rtequickstart
-    - **Language**: Java
-    - **Minimum SDK**: API 16: Android 4.1 (Jelly Bean)
+创建项目后，Android Studio 会自动开始同步 gradle，请确保同步成功再进行下一步操作。
 
-    创建项目后，Android Studio 会自动开始同步 gradle，请确保同步成功再进行下一步操作。
+### 集成 Agora SDK
 
-2. 将视频 SDK 集成到你的项目中。
+打开 SDK 包 `libs` 文件夹，将以下文件或子文件夹复制到你的项目路径中。如果你不需要通过 C++ 接口使用 SDK，则无需 `api` 文件夹。
 
-    打开 SDK 包 `libs` 文件夹，将以下文件或子文件夹复制到你的项目路径中。如果你不需要通过 C++ 接口使用 SDK，则无需 `api` 文件夹。
+| 文件或子文件夹           | 项目路径                 |
+| ------------------------ | ------------------------ |
+| `agora-rte-sdk.jar` 文件 | `/app/libs/`             |
+| `arm-v8a` 文件夹         | `/app/src/main/jniLibs/` |
+| `armeabi-v7a` 文件夹     | `/app/src/main/jniLibs/` |
+| `x86` 文件夹             | `/app/src/main/jniLibs/` |
+| `x86_64` 文件夹          | `/app/src/main/jniLibs/` |
+| `api` 文件夹（可选）      | `/app/src/main/jniLibs/` |
 
-    | 文件或子文件夹           | 项目路径                 |
-    | ------------------------ | ------------------------ |
-    | `agora-rte-sdk.jar` 文件 | `/app/libs/`             |
-    | `arm-v8a` 文件夹         | `/app/src/main/jniLibs/` |
-    | `armeabi-v7a` 文件夹     | `/app/src/main/jniLibs/` |
-    | `x86` 文件夹             | `/app/src/main/jniLibs/` |
-    | `x86_64` 文件夹          | `/app/src/main/jniLibs/` |
-    | `api` 文件夹（可选）      | `/app/src/main/jniLibs/` |
+在 `/Gradle Scripts/build.gradle(Module: rtequickstart.app)` 文件中， 对本地 Jar 包添加依赖：
 
-    在 `/Gradle Scripts/build.gradle(Module: rtequickstart.app)` 文件中， 对本地 Jar 包添加依赖：
+```gradle
+implementation fileTree(dir: 'libs', include: [ '*.jar' ])
+```
 
-    ```gradle
-    implementation fileTree(dir: 'libs', include: [ '*.jar' ])
-    ```
+### 防止代码混淆
 
-3. 添加网络及设备权限。
+在 `/Gradle Scripts/proguard-rules.pro` 文件中添加如下代码，防止混淆 Agora SDK 的代码：
 
-    在 `/app/Manifests/AndroidManifest.xml` 文件中，在 `</application>` 后面添加如下权限：
+```text
+-keep class io.agora.**{*;}
+```
 
-    ```xml
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    ```
+### 添加网络及设备权限
 
-4. 防止代码混淆。
+在 `/app/Manifests/AndroidManifest.xml` 文件中，在 `</application>` 后面添加如下权限：
 
-    在 `/Gradle Scripts/proguard-rules.pro` 文件中添加如下代码，防止混淆 SDK 的代码：
-
-    ```pro
-    -keep class io.agora.**{*;}
-    ```
-
-## 在客户端实现视频通话
-
-本节介绍如何使用 Agora 视频 SDK 在你的 app 里实现视频通话。
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.BLUETOOTH" />
+```
 
 ### 创建用户界面
 
@@ -201,7 +199,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 2. 定义全局变量。
 
-    在 `public class MainActivity extends AppCompatActivity {` 后定义以下全局变量。将 <Your App ID> 替换为你的 Agora App ID。
+    在 `public class MainActivity extends AppCompatActivity {` 后定义以下全局变量。将 `<Your App ID>` 替换为你的 Agora App ID。
 
     ```java
     // 你的 Agora App ID
