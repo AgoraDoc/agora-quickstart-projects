@@ -61,10 +61,6 @@ public class MainActivity extends AppCompatActivity {
     // 自动生成随机流 ID
     private String streamId = String.valueOf(new Random().nextInt(1024));
 
-    // 远端 stream ID 列表
-    // public List<AgoraRteMediaStreamInfo> streamInfoList = new ArrayList<>();
-
-
     // Scene 对象
     public AgoraRteScene mScene;
     // Scene event handler 对象
