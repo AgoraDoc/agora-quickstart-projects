@@ -1,14 +1,14 @@
-# 五分钟实现视频通话
+# 五分钟构建视频通话应用
 
-你可以通过在 app 客户端集成 Agora 视频 SDK 实现实时音视频互动。
+你可以通过在 app 客户端集成 Agora RTE SDK 实现实时音视频互动。
 
-本文介绍如何通过极简代码快速集成 Agora 视频 SDK ，在你的 Android app 里实现视频通话。
+本文介绍如何通过极简代码快速集成 Agora RTE SDK，在你的 Android app 里实现视频通话。
 
 ## 技术原理
 
 下图展示在 app 中集成 Agora 的基本工作流程：
 
-![]()
+![workflow](images/workflow.png)
 
 ## 前提条件
 
