@@ -15,7 +15,7 @@
     <LinearLayout
         android:id="@+id/remote_video_view_container"
         android:layout_width="206dp"
-        android:layout_height="258dp"
+        android:layout_height="240dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"

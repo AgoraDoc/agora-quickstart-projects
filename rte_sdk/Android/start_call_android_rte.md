@@ -103,7 +103,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 ### 创建用户界面
 
-用户界面中，通常有两个视图框，分别用于展示本地视频和远端视频。在 `/app/res/layout/activity_main.xml` 文件中，用如下代码进行替换：
+用户界面中创建两个布局，分别用于展示本地视频和远端视频。在 `/app/res/layout/activity_main.xml` 文件中，用如下代码进行替换：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -120,91 +120,64 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         android:layout_height="match_parent"
         android:background="@android:color/white" />
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/remote_video_view_container"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
+        android:layout_width="206dp"
+        android:layout_height="258dp"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
-        android:background="@android:color/darker_gray" />
-
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
+        android:background="@android:color/darker_gray"
+        android:clipChildren="true"
+        android:orientation="vertical" />
 </RelativeLayout>
 ```
 
-### 处理 Android 系统逻辑
-
-本节介绍如何导入所需的 Android Platform API 类，获取 Android 权限。
-
-#### 导入 Android Platform API 类
-
-在 `/app/java/com.example.rtequickstart/MainActivity.java` 文件中，在 `package com.example.rtequickstart;` 后添加如下引用：
-
-```java
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.view.SurfaceView;
-import android.widget.FrameLayout;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-```
-
-#### 获取 Android 权限
-
-启动应用程序时，检查是否已在 app 中授予了实现直播所需的权限。如果未授权，使用内置的 Android 功能申请权限；如果已授权，则返回 true。
-
-在 `/app/java/com.example.rtequickstart/MainActivity.java` 文件中，在 `onCreate` 前添加权限申请逻辑：
-
-```java
-private static final int PERMISSION_REQ_ID = 22;
-
-private static final String[] REQUESTED_PERMISSIONS = {
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CAMERA
-};
-
-private boolean checkSelfPermission(String permission, int requestCode) {
-        if (ContextCompat.checkSelfPermission(this, permission) !=
-                        PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, REQUESTED_PERMISSIONS, requestCode);
-                return false;
-        }
-        return true;
-}
-```
-
-### 实现互动直播逻辑
-
-打开你的 app，创建 `RtcEngine` 实例，启用视频后加入频道。如果本地用户是主播，则将本地视频发布到用户界面下方的视图中。如果另一主播加入该频道，你的 app 会捕捉到这一加入事件，并将远端视频添加到用户界面右上角的视图中。
-
-互动直播的 API 使用时序见下图：
-
-![]()
+### 实现视频通话逻辑
 
 按照以下步骤实现该逻辑：
 
-1. 导入 Agora SDK 中的类。
+1. 导入所需的类。
 
-    在 `/app/java/com.example.rtequickstart/MainActivity.java` 文件中，于 `import android.os.Bundle;` 后加入如下引用：
+    在 `/app/java/com.example.rtequickstart/MainActivity.java` 文件中，确保你导入以下类：
 
     ```java
+    package com.example.rtequickstart;
+
+    // AndroidX 相关类
+    import androidx.core.app.ActivityCompat;
+    import androidx.core.content.ContextCompat;
+    import androidx.appcompat.app.AppCompatActivity;
+    import androidx.core.view.ViewCompat;
+
+    // Android 相关类
+    import android.Manifest;
+    import android.content.pm.PackageManager;
+    import android.util.TypedValue;
+    import android.view.SurfaceView;
+    import android.view.View;
+    import android.view.ViewGroup;
+    import android.widget.FrameLayout;
+    import android.os.Bundle;
+    import android.widget.LinearLayout;
+
+    // Java 原生类
+    import java.util.List;
+    import java.util.Random;
+
+    // Agora RTE SDK 相关类
     import io.agora.rte.AgoraRteSDK;
     import io.agora.rte.AgoraRteSdkConfig;
 
     import io.agora.rte.base.AgoraRteLogConfig;
 
+    import io.agora.rte.media.AgoraRteMediaFactory;
+    import io.agora.rte.media.camera.AgoraRteCameraCaptureObserver;
+    import io.agora.rte.media.camera.AgoraRteCameraSource;
+    import io.agora.rte.media.camera.AgoraRteCameraState;
     import io.agora.rte.media.stream.AgoraRtcStreamOptions;
     import io.agora.rte.media.stream.AgoraRteMediaStreamInfo;
     import io.agora.rte.media.track.AgoraRteCameraVideoTrack;
@@ -224,31 +197,34 @@ private boolean checkSelfPermission(String permission, int requestCode) {
 
 2. 定义全局变量。
 
-    在 `public class MainActivity extends AppCompatActivity {` 后定义以下全局变量：
+    在 `public class MainActivity extends AppCompatActivity {` 后定义以下全局变量。将 <Your App ID> 替换为你的 Agora App ID。
 
     ```java
-    // 输入你的 Agora app ID
+    // 你的 Agora App ID
     private String appId = "<Your App ID>";
-    // 输入你的 Agora scene name
-    private String sceneName = "testScene";
-    // 输入你的 user ID
-    private String userId = "testUser";
+    // 你的 Agora scene 名。本示例设为 "testScene"
+    private String sceneId = "testScene";
+    // 用户 ID。本示例自动生成随机 user ID
+    private String userId = String.valueOf(new Random().nextInt(1024));
 
-    // 输入你的 Token。不可填 null
+    // 你的 Token。在本示例中设为 ""
     private String token = "";
 
-    private String streamId = "";
+    // 流 ID。本示例自动生成随机流 ID
+    private String streamId = String.valueOf(new Random().nextInt(1024));
 
     // Scene 对象
     public AgoraRteScene mScene;
-    // Scene event handler 对象
+    // Scene 事件处理对象
     public AgoraRteSceneEventHandler mAgoraHandler;
-    // Camera video track 对象
+    // 摄像头视频轨道对象
     public AgoraRteCameraVideoTrack mLocalVideoTrack;
-    // Microphone audio track 对象
+    // 麦克风音频轨道对象
     public AgoraRteMicrophoneAudioTrack mLocalAudioTrack;
-    // Scene 加入选项
+    // 加入 scene 选项对象
     public AgoraRteSceneJoinOptions options;
+    // 媒体工厂对象
+    public AgoraRteMediaFactory mMediaFactory;
     ```
 
 3. 定义实现视频通话的基本方法。
@@ -259,41 +235,25 @@ private boolean checkSelfPermission(String permission, int requestCode) {
         ```java
         public void initAgoraRteSDK() {
         AgoraRteSdkConfig config = new AgoraRteSdkConfig();
-        // 设置 Agora App ID
+        // 设置 App ID
         config.appId = appId;
-        // 获取当前 context
+        // 设置 context
         config.context = getBaseContext();
-        // 配置日志文件
+        // 设置 log
         config.logConfig = new AgoraRteLogConfig(getBaseContext().getFilesDir().getAbsolutePath());
-        // 执行初始化
+        /**
+         * 初始化 SDK。
+         * @param config SDK 配置。
+         *
+         * @return AgoraRteScene 对象。
+         */
         AgoraRteSDK.init(config);
-        }
-        ```
-
-    - `createAndJoinScene`：创建并加入 scene。只有加入相同 scene 的用户才可以互相发送和接收媒体流。
-
-        ```java
-        public void createAndJoinScene(String sceneName, String userId, String token) {
-            // 创建 scene
-            AgoraRteSceneConfig config = new AgoraRteSceneConfig();
-            mScene = AgoraRteSDK.createRteScene(sceneName, config);
-            // 初始化 AgoraRteSceneEventHandler 对象
-            initListener();
-
-            // 注册 scene event handler
-            mScene.registerSceneEventHandler(mAgoraHandler);
-
-            options = new AgoraRteSceneJoinOptions();
-            options.setUserVisibleToRemote(true);
-
-            // 加入 scene
-            mScene.join(userId, token, options);
         }
         ```
 
     - `initListener`：初始化 `AgoraRteSceneEventHandler` 对象。你需要在 `AgoraRteSceneEventHandler` 对象的相关回调中实现媒体流的发布与接收逻辑。
         - 媒体流发布：本地用户成功加入 scene 时（`onConnectionStateChanged` 回调返回 `CONN_STATE_CONNECTED` 时）开始发布媒体流。
-        - 媒体流接收：收到远端用户发送的流时（`onRemoteStreamAdded` 被触发时）。
+        - 媒体流接收：收到远端用户发送的流时（`onRemoteStreamAdded` 被触发时）对远端媒体流进行渲染。
 
         ```java
         // 初始化 AgoraRteSceneEventHandler 对象
@@ -305,54 +265,273 @@ private boolean checkSelfPermission(String permission, int requestCode) {
                     super.onConnectionStateChanged(oldState, newState, reason);
 
                     if (newState == AgoraRteSceneConnState.CONN_STATE_CONNECTED) {
-                        // 创建实时媒体流
-                        AgoraRtcStreamOptions option = new AgoraRtcStreamOptions();
-                        mScene.createOrUpdateRTCStream(userId, option);
+                        System.out.println("连接状态已从 " + oldState.toString() + " 变更为 " + newState.toString() + "原因是： " + reason.toString());
+
+                        // 创建实时音视频流
+                        AgoraRtcStreamOptions streamOption = new AgoraRtcStreamOptions();
+                        /**
+                        * 创建或更新 RTC 流。
+                        * @param streamId 用于标识流的 ID。在一个 scene 中必须唯一。
+                        * @param streamOption 发流选项。
+                        *
+                        * @return
+                        * 0：方法调用成功。
+                        * <0：方法调用失败。
+                        *
+                        */
+                        mScene.createOrUpdateRTCStream(streamId, streamOption);
+
                         FrameLayout container = findViewById(R.id.local_video_view_container);
+
+                        mMediaFactory = AgoraRteSDK.getRteMediaFactory();
+
                         // 创建摄像头视频轨道
-                        mLocalVideoTrack = AgoraRteSDK.getRteMediaFactory().createCameraVideoTrack();
-                        // 必须先调用 setPreviewCanvas，然后才能调用 startCapture 开始摄像头采集视频
-                        SurfaceView view = new SurfaceView (getBaseContext());
+                        /**
+                        * 创建摄像头采集视频轨道
+                        *
+                        * @return AgoraRteCameraVideoTrack 对象。
+                        */
+                        mLocalVideoTrack = mMediaFactory.createCameraVideoTrack();
+
+                        // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
+                        SurfaceView view = new SurfaceView(getBaseContext());
                         container.addView(view);
+
                         AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
                         if (mLocalVideoTrack != null) {
                             // 设置本地预览的 Canvas
+                            /**
+                            * 设置预览画布。
+                            * @param canvas AgoraRteVideoCanvas 对象。
+                            *
+                            * @return
+                            * 0：方法调用成功。
+                            * <0：方法调用失败。
+                            */
                             mLocalVideoTrack.setPreviewCanvas(canvas);
+
+                            AgoraRteCameraCaptureObserver cameraCaptureObserver = new AgoraRteCameraCaptureObserver() {
+                                /**
+                                * 摄像头状态变更时触发。
+                                * @param agoraRteCameraState 摄像头状态。
+                                * @param agoraRteCameraSource 摄像头源。
+                                */
+                                @Override
+                                public void onCameraStateChanged(AgoraRteCameraState agoraRteCameraState, AgoraRteCameraSource agoraRteCameraSource) {
+                                    System.out.println("Camera state: " + agoraRteCameraState.toString() + " Camera source: " + agoraRteCameraSource.toString());
+                                }
+                            };
+
                             // 开始摄像头采集视频
-                            mLocalVideoTrack.startCapture(null);
+                            /**
+                            * 开始摄像头采集。
+                            * @param agoraRteCameraCaptureObserver 摄像头状态监听器。
+                            *
+                            * @return
+                            * 0：方法调用成功。
+                            * <0：方法调用失败。
+                            */
+                            mLocalVideoTrack.startCapture(cameraCaptureObserver);
                         }
-                        // 发布本地视频流
-                        mScene.publishLocalVideoTrack(userId, mLocalVideoTrack);
+                        // 发布本地视频轨道
+                        /**
+                        * 将本地视频轨道发布到指定流。
+                        *
+                        * 一个流最多可包含一个视频轨道。
+                        *
+                        * @param streamId 本地流的 ID。
+                        * @param videoTrack 要发布的视频轨道。
+                        *
+                        * @return
+                        * 0：方法调用成功。
+                        * <0：方法调用失败。
+                        */
+                        mScene.publishLocalVideoTrack(streamId, mLocalVideoTrack);
                         // 创建麦克风音频轨道
-                        mLocalAudioTrack = AgoraRteSDK.getRteMediaFactory().createMicrophoneAudioTrack();
+
+                        mLocalAudioTrack = mMediaFactory.createMicrophoneAudioTrack();
                         // 开始麦克风采集音频
+                        /**
+                        * 开始录制音频。
+                        *
+                        * @return
+                        * 0：方法调用成功。
+                        * <0：方法调用失败。
+                        *
+                        */
                         mLocalAudioTrack.startRecording();
-                        // 发布本地音频流
-                        mScene.publishLocalAudioTrack(userId, mLocalAudioTrack);
-                    } else if (newState == AgoraRteSceneConnState.CONN_STATE_DISCONNECTED) {
-                        System.out.println("连接状态已从 " + oldState.toString() + " 变更为 " + newState.toString());
+                        // 发布本地音频轨道
+                        /**
+                        * 将本地音频轨道发布到指定流。
+                        *
+                        * 一个流可包含多个音频轨道。
+                        *
+                        * @param streamId 本地流的 ID。
+                        * @param audioTrack 要发布的视频轨道。
+                        *
+                        * @return
+                        * 0：方法调用成功。
+                        * <0：方法调用失败。
+                        */
+                        mScene.publishLocalAudioTrack(streamId, mLocalAudioTrack);
                     }
                 }
 
+                // 远端用户加入 scene 时触发
+
+                /**
+                * 远端用户加入 scene 时触发。
+                * @param users scene 中在线的用户列表。
+                */
                 @Override
-                public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> list) {
-                    FrameLayout container = findViewById(R.id.remote_video_view_container);
-                    SurfaceView view = new SurfaceView (getBaseContext());
-                    container.addView(view);
-
-                    // 获取远端 stream 的 ID。在该示例我们仅考虑一对一通话，因此仅获取第一个 stream ID。
-                    streamId = list.get(0).getStreamId();
-
-                    AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
-                    mScene.setRemoteVideoCanvas(streamId, canvas);
-
-                    mScene.subscribeRemoteVideo(streamId, new AgoraRteVideoSubscribeOptions());
-                    mScene.subscribeRemoteAudio(streamId);
+                public void onRemoteUserJoined(List<AgoraRteUserInfo> users) {
+                    super.onRemoteUserJoined(users);
+                    System.out.println(users.toString());
                 }
 
+                // 远端用户离开 scene 时触发
+
+                /**
+                * 远端用户离开 scene 时触发。
+                * @param users scene 中在线的用户列表。
+                */
+                @Override
+                public void onRemoteUserLeft(List<AgoraRteUserInfo> users) {
+                    super.onRemoteUserLeft(users);
+                    System.out.println(users.toString());
+                }
+
+                // 远端用户发流时触发
+
+                /**
+                * 远端用户发流时触发。
+                * @param streams scene 中的流列表。
+                */
+                @Override
+                public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
+                    super.onRemoteStreamAdded(streams);
+
+                    for (AgoraRteMediaStreamInfo info : streams) {
+
+                        /**
+                        * 订阅远端视频。
+                        *
+                        * @param remoteStreamId 远端流 ID。
+                        * @param videoSubscribeOption 订阅选项。
+                        */
+                        mScene.subscribeRemoteVideo(info.getStreamId(), new AgoraRteVideoSubscribeOptions());
+                        /**
+                        * 订阅远端音频。
+                        *
+                        * @param remoteStreamId 远端流 ID。
+                        */
+                        mScene.subscribeRemoteAudio(info.getStreamId());
+
+                        LinearLayout container = findViewById(R.id.remote_video_view_container);
+                        SurfaceView view = new SurfaceView (getBaseContext());
+
+                        view.setZOrderMediaOverlay(true);
+
+                        view.setTag(info.getStreamId());
+
+                        view.setId(ViewCompat.generateViewId());
+                        view.setSaveEnabled(true);
+
+                        ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
+                        container.addView(view, -1, layoutParams);
+
+                        AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
+                        /**
+                        * public static final int RENDER_MODE_HIDDEN = 1;
+                        * public static final int RENDER_MODE_FIT = 2;
+                        * public static final int RENDER_MODE_ADAPTIVE = 3;
+                        */
+                        canvas.renderMode = 2;
+                        /**
+                        * 设置远端视频渲染画布。
+                        * @param remoteStreamId 远端流的 ID。
+                        * @param canvas AgoraVideoCanvas 对象。
+                        *
+                        * @return
+                        * 0：方法调用成功。
+                        * <0：方法调用失败。
+                        */
+                        mScene.setRemoteVideoCanvas(info.getStreamId(), canvas);
+
+                    }
+
+                }
+
+                // 远端用户停止发流时触发
+                /**
+                * 远端用户停止发流时触发。
+                * @param streams scene 中的流列表。
+                */
+                @Override
+                public void onRemoteStreamRemoved(List<AgoraRteMediaStreamInfo> streams) {
+                    super.onRemoteStreamRemoved(streams);
+
+                    for (AgoraRteMediaStreamInfo info : streams) {
+
+                        LinearLayout container = findViewById(R.id.remote_video_view_container);
+                        View view = container.findViewWithTag(info.getStreamId());
+                        container.removeView(view);
+
+                        /**
+                        * 取消订阅视频。
+                        *
+                        * @param remoteStreamId 远端流的 ID。
+                        */
+                        mScene.unsubscribeRemoteVideo(info.getStreamId());
+                        /**
+                        * 取消订阅音频。
+                        *
+                        * @param remoteStreamId 远端流的 ID。
+                        */
+                        mScene.unsubscribeRemoteAudio(info.getStreamId());
+
+                    }
+
+                }
             };
         }
         ```
+
+    - `createAndJoinScene`：创建并加入 scene。只有加入相同 scene 的用户才可以互相发送和接收媒体流。
+
+        ```java
+        public void createAndJoinScene(String sceneId, String userId, String token) {
+        // 创建 scene
+        AgoraRteSceneConfig sceneConfig = new AgoraRteSceneConfig();
+        /**
+         * 创建 scene。
+         * @param sceneId 用于标识 Scene 的 ID。
+         * @param sceneConfig scene 配置。
+         *
+         * @return AgoraRteScene 对象。
+         */
+        mScene = AgoraRteSDK.createRteScene(sceneId, sceneConfig);
+
+        // 注册 scene event handler
+        mScene.registerSceneEventHandler(mAgoraHandler);
+
+        options = new AgoraRteSceneJoinOptions();
+        options.setUserVisibleToRemote(true);
+
+        /**
+         * 加入 scene。
+         * @param userId 用于标识用户的 ID。在一个 scene 中必须唯一。
+         * @param token 用于鉴权的 Token。
+         * @param options 加入 scene 选项。
+         *
+         * @return
+         * 0：方法调用成功。
+         * <0：方法调用失败。
+         */
+        mScene.join(userId, token, options);
+        }
+        ```
+
 
 4. 在 `onCreate` 回调中按顺序调用定义的基本方法。
 
@@ -363,23 +542,46 @@ private boolean checkSelfPermission(String permission, int requestCode) {
         setContentView(R.layout.activity_main);
         // 1. 初始化 SDK
         initAgoraRteSDK();
-        // 2. 创建并加入 scene
-        createAndJoinScene(sceneName, userId, token);
+        // 2. 初始化 AgoraRteSceneEventHandler 对象
+        initListener();
+        // 3. 申请设备权限。权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+        if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
+                checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
+            createAndJoinScene(sceneId, userId, token);
+        }
+
     }
     ```
 
 5. 在 `onCreate` 回调后定义 `onDestroy` 回调。在 `onDestroy` 回调中离开 scene 并销毁 AgoraRteSDK 对象。
 
     ```java
-    @Override
     protected void onDestroy() {
         super.onDestroy();
+
         // 3. 离开 scene
+        /**
+         * 离开 scene。
+         */
         mScene.leave();
         // 4. 销毁 AgoraRteSDK 对象
+        /**
+         * 销毁 AgoraRteSDK 对象。
+         *
+         * @return
+         * 0：方法调用成功。
+         * <0：方法调用失败。
+         */
         AgoraRteSDK.deInit();
     }
     ```
 
-## 参考
+### 编译项目并运行 app
 
+将 Android 设备或模拟器连接到你的电脑，并在 Android Studio 里点击 Run 'app'。项目安装到你的设备或模拟器之后，按照以下步骤运行 app：
+
+- 授予你的 app 麦克风和摄像头权限。
+- 启动 app，你会在本地视图中看到自己。
+- 在另一台设备或模拟器上运行 app，你可以看到在远端视图看到对端设备采集的视频。
+
+![demo1](images/android_demo_1.png)
