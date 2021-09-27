@@ -219,7 +219,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
     // 场景对象
     public AgoraRteScene mScene;
-    // Scene 事件处理对象
+    // 场景事件处理对象
     public AgoraRteSceneEventHandler mAgoraHandler;
     // 摄像头视频轨道对象
     public AgoraRteCameraVideoTrack mLocalVideoTrack;
