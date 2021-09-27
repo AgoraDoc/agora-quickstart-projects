@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         // 1. 初始化 SDK
         initAgoraRteSDK();
         // 2. 初始化 AgoraRteSceneEventHandler 对象
-        initListener();
+        registerEventHandler();
         // 3. 申请设备权限。权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // 初始化 AgoraRteSceneEventHandler 对象
-    public void initListener(){
+    public void registerEventHandler(){
         // 创建 AgoraRteSceneEventHandler 对象
         mAgoraHandler = new AgoraRteSceneEventHandler() {
             @Override
