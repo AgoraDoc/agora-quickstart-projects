@@ -586,12 +586,12 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     protected void onDestroy() {
         super.onDestroy();
 
-        // 3. 离开场景
+        // 4. 离开场景
         /**
          * 离开场景。
          */
         mScene.leave();
-        // 4. 销毁 AgoraRteSDK 对象
+        // 5. 销毁 AgoraRteSDK 对象
         /**
          * 销毁 AgoraRteSDK 对象。
          *
