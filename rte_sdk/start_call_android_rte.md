@@ -238,21 +238,21 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
    ```java
    // 处理设备权限
-       private static final int PERMISSION_REQ_ID = 22;
+   private static final int PERMISSION_REQ_ID = 22;
 
-       private static final String[] REQUESTED_PERMISSIONS = {
-               Manifest.permission.RECORD_AUDIO,
-               Manifest.permission.CAMERA
-       };
+   private static final String[] REQUESTED_PERMISSIONS = {
+           Manifest.permission.RECORD_AUDIO,
+           Manifest.permission.CAMERA
+   };
 
-       private boolean checkSelfPermission(String permission, int requestCode) {
-           if (ContextCompat.checkSelfPermission(this, permission) !=
-                   PackageManager.PERMISSION_GRANTED) {
-               ActivityCompat.requestPermissions(this, REQUESTED_PERMISSIONS, requestCode);
-               return false;
-           }
-           return true;
+   private boolean checkSelfPermission(String permission, int requestCode) {
+       if (ContextCompat.checkSelfPermission(this, permission) !=
+               PackageManager.PERMISSION_GRANTED) {
+           ActivityCompat.requestPermissions(this, REQUESTED_PERMISSIONS, requestCode);
+           return false;
        }
+       return true;
+   }
    ```
 
 4. 定义实现视频通话的基本方法。
