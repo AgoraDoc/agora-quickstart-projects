@@ -127,14 +127,15 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     <LinearLayout
         android:id="@+id/remote_video_view_container"
         android:layout_width="206dp"
-        android:layout_height="258dp"
+        android:layout_height="360dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="18dp"
         android:layout_marginRight="18dp"
-        android:background="@android:color/darker_gray"
+        android:background="#000000"
+        android:alpha="0.00"
         android:clipChildren="true"
         android:orientation="vertical" />
 </RelativeLayout>
