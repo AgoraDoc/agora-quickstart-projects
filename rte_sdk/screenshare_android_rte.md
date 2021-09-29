@@ -8,7 +8,7 @@
 
 你已经根据 [五分钟构建视频通话应用](start_call_android_rte.md) 搭建了一个基础的视频通话应用。
 
-Android 系统版本建议 >= Android 5，且 <= Android 8.1。
+> 在此教程中，Android 系统版本需要 >= Android 5，且 <= Android 8.1。
 
 ## 实现流程
 
@@ -26,7 +26,7 @@ https://github.com/AgoraDoc/agora-quickstart-projects/commit/3fabb2b0d713f7645d9
 - 启动 app，你会在本地视图中看到自己。
 - 在另一台设备或模拟器上运行 app，你可以看到在远端视图看到对端设备采集的视频，包括摄像头视频和屏幕录制视频。
 
-![demo](images/android_demo.png)
+![demo](images/screenshare_plus_camera.png)
 
 ## 常见问题
 
