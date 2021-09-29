@@ -1,15 +1,25 @@
 package com.example.rtequickstart;
 
+import static android.app.Activity.RESULT_OK;
+
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.TypedValue;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.media.projection.MediaProjectionManager;
 
 import java.util.List;
 import java.util.Random;
@@ -33,7 +43,9 @@ import io.agora.rte.media.stream.AgoraRtcStreamOptions;
 import io.agora.rte.media.stream.AgoraRteMediaStreamInfo;
 import io.agora.rte.media.track.AgoraRteCameraVideoTrack;
 import io.agora.rte.media.track.AgoraRteMicrophoneAudioTrack;
+import io.agora.rte.media.track.AgoraRteScreenVideoTrack;
 import io.agora.rte.media.video.AgoraRteVideoCanvas;
+import io.agora.rte.media.video.AgoraRteVideoEncoderConfiguration;
 import io.agora.rte.media.video.AgoraRteVideoSubscribeOptions;
 
 import io.agora.rte.scene.AgoraRteConnectionChangedReason;
@@ -53,13 +65,17 @@ public class MainActivity extends AppCompatActivity {
     // 你的 Agora scene name
     private String sceneId = "testScene";
     // 自动生成随机 user ID
-    private String userId = String.valueOf(new Random().nextInt(1024));
+    private String userId = "user_" + String.valueOf(new Random().nextInt(1024));
 
     // 你的 Token。在本示例中设为 ""
     private String token = "";
 
     // 自动生成随机流 ID
-    private String streamId = String.valueOf(new Random().nextInt(1024));
+    private String streamId = "stream_" + String.valueOf(new Random().nextInt(1024));
+    private String screenStreamId = "screen_stream_" + String.valueOf(new Random().nextInt(1024));
+
+    private Intent mediaProjectionIntent;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
 
     // Scene 对象
     public AgoraRteScene mScene;
@@ -69,10 +85,21 @@ public class MainActivity extends AppCompatActivity {
     public AgoraRteCameraVideoTrack mLocalVideoTrack;
     // 麦克风音频轨道对象
     public AgoraRteMicrophoneAudioTrack mLocalAudioTrack;
+    // 屏幕录制视频轨道对象
+    public AgoraRteScreenVideoTrack mScreenVideoTrack;
     // 加入 scene 选项对象
     public AgoraRteSceneJoinOptions options;
 
     public AgoraRteMediaFactory mMediaFactory;
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void initScreenActivity() {
+        mediaProjectionIntent = new Intent(this, MediaProjectionForegroundService.class);
+        MediaProjectionManager mgr = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        Intent intent = mgr.createScreenCaptureIntent();
+        activityResultLauncher.launch(intent);
+    }
+
 
     // 处理设备权限
     private static final int PERMISSION_REQ_ID = 22;
@@ -99,23 +126,31 @@ public class MainActivity extends AppCompatActivity {
         initAgoraRteSDK();
         // 2. 初始化 AgoraRteSceneEventHandler 对象
         registerEventHandler();
-        // 3. 申请设备权限。权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+        // 3. 初始化屏幕录制进程
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            initScreenActivity();
+        }
+        // 4. 申请设备权限。权限申请成功后，创建并加入场景, 监听远端媒体流并发送本地媒体流
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
             createAndJoinScene(sceneId, userId, token);
         }
+
 
     }
 
     protected void onDestroy() {
         super.onDestroy();
 
-        // 3. 离开 scene
+        // 1. 停止屏幕录制
+        this.stopService(mediaProjectionIntent);
+
+        // 2. 离开 scene
         /**
          * 离开 scene。
          */
         mScene.leave();
-        // 4. 销毁 AgoraRteSDK 对象
+        // 3. 销毁 AgoraRteSDK 对象
         /**
          * 销毁 AgoraRteSDK 对象。
          *
@@ -176,6 +211,26 @@ public class MainActivity extends AppCompatActivity {
 
     // 初始化 AgoraRteSceneEventHandler 对象
     public void registerEventHandler(){
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK) {
+                if (mScreenVideoTrack == null) {
+                    // 创建屏幕录制视频轨道
+                    mScreenVideoTrack = AgoraRteSDK.getRteMediaFactory().createScreenVideoTrack();
+                }
+                mScene.createOrUpdateRTCStream(screenStreamId, new AgoraRtcStreamOptions());
+                mScreenVideoTrack.startCaptureScreen(result.getData(), new AgoraRteVideoEncoderConfiguration.VideoDimensions());
+
+                // 发布屏幕录制视频轨道
+                mScene.publishLocalVideoTrack(screenStreamId, mScreenVideoTrack);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    this.startForegroundService(mediaProjectionIntent);
+                } else {
+                    this.startService(mediaProjectionIntent);
+                }
+            }
+        });
+
         // 创建 AgoraRteSceneEventHandler 对象
         mAgoraHandler = new AgoraRteSceneEventHandler() {
             @Override
@@ -292,6 +347,8 @@ public class MainActivity extends AppCompatActivity {
                      * <0：方法调用失败。
                      */
                     mScene.publishLocalAudioTrack(streamId, mLocalAudioTrack);
+
+
                 }
             }
 
