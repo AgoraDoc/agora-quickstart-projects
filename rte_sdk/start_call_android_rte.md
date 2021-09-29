@@ -33,7 +33,7 @@
 
 按照以下步骤，在控制台创建一个 Agora 项目。
 
-> 如果你已经创建了 Agora 项目，请确保项目的鉴权机制是 **APP ID**。本教程**不支持**开启 Token 鉴权的 Agora 项目。
+> 如果你已经创建了 Agora 项目，请确保项目的鉴权机制是 **调试模式：APP ID**。本教程不支持开启**安全模式：开启 App ID + Token** 的 Agora 项目。
 
 1. 登录 Agora [控制台](https://console.agora.io/)，点击左侧导航栏 ![img](images/button.png) **项目管理**按钮进入[项目管理](https://dashboard.agora.io/projects)页面。
 
@@ -41,7 +41,7 @@
 
    [![img](images/create.png)](https://dashboard.agora.io/projects)
 
-3. 在弹出的对话框内输入**项目名称**，选择**鉴权机制**为 **APP ID**。Agora 推荐只在测试环境，或对安全要求不高的场景里使用 App ID 鉴权。
+3. 在弹出的对话框内输入**项目名称**，选择**鉴权机制**为 **调试模式：APP ID**。Agora 推荐只在测试环境，或对安全要求不高的场景里使用 App ID 鉴权。
 
    ![select](images/select.png)
 
@@ -616,3 +616,23 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 - 在另一台设备或模拟器上运行 app，你可以看到在远端视图看到对端设备采集的视频。
 
 ![demo](images/android_demo.png)
+
+## 常见问题
+
+### Android gradle sync 太慢怎么办？
+
+在 `/Gradle Scripts/build.gradle(app: rtequickstart.app)` 文件中，添加国内镜像源地址。
+
+以阿里云云效 Maven 镜像为例：
+
+```diff
+repositories {
+
+...
+
++    maven {
++      url 'https://maven.aliyun.com/repository/public/'
++    }
+
+...
+```
