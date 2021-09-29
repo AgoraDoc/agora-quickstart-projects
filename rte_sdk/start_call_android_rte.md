@@ -31,15 +31,19 @@
 
 ### 创建 Agora 项目
 
-按照以下步骤，在控制台创建一个 Agora 项目。如果你已经创建了 Agora 项目，请确保项目的鉴权机制是 **APP ID**。
+按照以下步骤，在控制台创建一个 Agora 项目。
 
-1. 登录 Agora [控制台](https://console.agora.io/)，点击左侧导航栏 ![img](https://web-cdn.agora.io/docs-files/1594283671161) **项目管理**按钮进入[项目管理](https://dashboard.agora.io/projects)页面。
+> 如果你已经创建了 Agora 项目，请确保项目的鉴权机制是 **APP ID**。本教程**不支持**开启 Token 鉴权的 Agora 项目。
+
+1. 登录 Agora [控制台](https://console.agora.io/)，点击左侧导航栏 ![img](images/button.png) **项目管理**按钮进入[项目管理](https://dashboard.agora.io/projects)页面。
 
 2. 在**项目管理**页面，点击**创建**按钮。
 
-   [![img](https://web-cdn.agora.io/docs-files/1594287028966)](https://dashboard.agora.io/projects)
+   [![img](images/create.png)](https://dashboard.agora.io/projects)
 
 3. 在弹出的对话框内输入**项目名称**，选择**鉴权机制**为 **APP ID**。Agora 推荐只在测试环境，或对安全要求不高的场景里使用 App ID 鉴权。
+
+   ![select](images/select.png)
 
 4. 点击**提交**，新建的项目就会显示在**项目管理**页中。
 
@@ -586,12 +590,12 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     protected void onDestroy() {
         super.onDestroy();
 
-        // 4. 离开场景
+        // 1. 离开场景
         /**
          * 离开场景。
          */
         mScene.leave();
-        // 5. 销毁 AgoraRteSDK 对象
+        // 2. 销毁 AgoraRteSDK 对象
         /**
          * 销毁 AgoraRteSDK 对象。
          *
