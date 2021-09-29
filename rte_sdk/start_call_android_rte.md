@@ -72,7 +72,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 2. 打开 SDK 包 `sdk` 文件夹，将以下文件或子文件夹复制到你的项目路径中。如果你不需要通过 C++ 接口使用 SDK，则无需 `api` 文件夹。
 
-| 文件或子文件夹           | 项目路径                 |
+| 文件或子文件夹           | 项目路径（如果路径不存在请新建）                 |
 | ------------------------ | ------------------------ |
 | `agora-rte-sdk.jar` 文件 | `/app/libs/`             |
 | `arm-v8a` 文件夹         | `/app/src/main/jniLibs/` |
@@ -81,7 +81,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 | `x86_64` 文件夹          | `/app/src/main/jniLibs/` |
 | `api` 文件夹（可选）      | `/app/src/main/jniLibs/` |
 
-3. 在 `/Gradle Scripts/build.gradle(Module: rtequickstart.app)` 文件中， 对本地 Jar 包添加依赖：
+3. 在 `/Gradle Scripts/build.gradle(Module: RteQuickstart.app)` 文件中， 对本地 Jar 包添加依赖：
 
     ```gradle
     implementation fileTree(dir: 'libs', include: [ '*.jar' ])
@@ -621,7 +621,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 ### Android gradle sync 太慢怎么办？
 
-在 `/Gradle Scripts/build.gradle(app: rtequickstart.app)` 文件中，添加国内镜像源地址。
+在 `/Gradle Scripts/build.gradle(Project: RteQuickstart)` 文件中，添加国内镜像源地址。
 
 以阿里云云效 Maven 镜像为例：
 
