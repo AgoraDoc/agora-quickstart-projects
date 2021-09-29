@@ -14,7 +14,7 @@
 
 1. 创建流。你可以创建一个或多个流。每个流可以最多包含一个视频轨道，但可以包含多个音频轨道。
 2. 加入场景。
-3. 在场景中发布/接收流。
+3. 在场景中发布和订阅流。
 
 ## 前提条件
 
@@ -525,7 +525,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         }
         ```
 
-    - `createAndJoinScene`：创建并加入场景。只有加入相同场景的用户才可以互相发送和接收媒体流。
+    - `createAndJoinScene`：创建并加入场景。只有加入相同场景的用户才可以互相发送和订阅媒体流。
 
         ```java
         public void createAndJoinScene(String sceneId, String userId, String token) {
