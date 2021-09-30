@@ -176,7 +176,7 @@
 +import android.os.Build;
  import android.util.TypedValue;
  import android.view.SurfaceView;
-+
+
  import android.view.View;
  import android.view.ViewGroup;
  import android.widget.FrameLayout;
@@ -333,8 +333,6 @@
 
                  for (AgoraRteMediaStreamInfo info : streams) {
 
-+                    System.out.println("新增 stream ID：" + info.getStreamId());
-+
                      /**
                       * 订阅远端视频。
                       *
@@ -342,9 +340,8 @@
                      mScene.subscribeRemoteAudio(info.getStreamId());
 
                      LinearLayout container = findViewById(R.id.remote_video_view_container);
--                    SurfaceView view = new SurfaceView (getBaseContext());
+                     SurfaceView view = new SurfaceView (getBaseContext());
 
-+                    SurfaceView view = new SurfaceView (getBaseContext());
                      view.setZOrderMediaOverlay(true);
 
                      view.setTag(info.getStreamId());
@@ -352,8 +349,6 @@
                      view.setId(ViewCompat.generateViewId());
                      view.setSaveEnabled(true);
 
-+                    System.out.println(info.getStreamId() + " 的渲染 view tag 为：" + view.getTag());
-+
                      ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
                      container.addView(view, -1, layoutParams);
 -
@@ -372,8 +367,6 @@
 
                  for (AgoraRteMediaStreamInfo info : streams) {
 
-+                    System.out.println("删除 stream ID：" + info.getStreamId());
-+
                      LinearLayout container = findViewById(R.id.remote_video_view_container);
                      View view = container.findViewWithTag(info.getStreamId());
                      container.removeView(view);
