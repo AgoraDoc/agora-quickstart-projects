@@ -126,8 +126,8 @@ public class MainActivity extends AppCompatActivity {
         // 2. 初始化 AgoraRteSceneEventHandler 对象
         registerEventHandler();
         // 3. 申请设备权限。权限申请成功后：
-        // 创建并加入场景, 监听远端媒体流并发送本地媒体流
-        // 注册监听器，在 media projection activity 完成时创建并发布屏幕录制视频轨道
+        // createAndJoinScene 创建并加入场景, 监听远端媒体流并发送本地媒体流
+        // registerScreenActivity 注册监听器，在 media projection activity 完成时创建并发布屏幕录制视频轨道
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
             createAndJoinScene(sceneId, userId, token);
@@ -135,12 +135,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // 4. 启动屏幕录制进程
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-                initScreenActivity();
-            }
+        initScreenActivity();
         }
-
-
 
     protected void onDestroy() {
         super.onDestroy();
@@ -218,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 // this.startForegroundService(mediaProjectionIntent);
-                ContextCompat.startForegroundService(this, mediaProjectionIntent);
+                this.startForegroundService(mediaProjectionIntent);
 
             } else {
                 this.startService(mediaProjectionIntent);
@@ -229,18 +225,11 @@ public class MainActivity extends AppCompatActivity {
                     // 创建屏幕录制视频轨道
                     mScreenVideoTrack = AgoraRteSDK.getRteMediaFactory().createScreenVideoTrack();
                 }
-                if (mScene == null){System.out.println("mScene 对象居然是空的");}
                 mScene.createOrUpdateRTCStream(screenStreamId, new AgoraRtcStreamOptions());
                 mScreenVideoTrack.startCaptureScreen(result.getData(), new AgoraRteVideoEncoderConfiguration.VideoDimensions());
 
                 // 发布屏幕录制视频轨道
-                int ret = mScene.publishLocalVideoTrack(screenStreamId, mScreenVideoTrack);
-                if (ret == 0){
-                    System.out.println("已发布 screentrack，stream ID 是：" + screenStreamId);
-                }
-                else{
-                    System.out.println("Screentrack 发布失败");
-                }
+                mScene.publishLocalVideoTrack(screenStreamId, mScreenVideoTrack);
             }
         });
     }
