@@ -152,7 +152,7 @@
 - 启动 app，你会在本地视图中看到自己。
 - 在另一台设备或模拟器上运行 app，你可以看到在远端视图看到对端设备采集的视频，包括摄像头视频和屏幕录制视频。
 
-![demo](images/screenshare_plus_camera.png)
+![demo](images/screenshare_plus_camera.png.jpg)
 
 ## 常见问题
 
