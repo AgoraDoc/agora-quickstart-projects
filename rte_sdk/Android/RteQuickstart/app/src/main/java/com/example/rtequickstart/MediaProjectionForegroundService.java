@@ -12,6 +12,7 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.Random;
 //  targetSdkVersion 设置为 28 时,想要使用前台服务的应用必须首先请求 FOREGROUND_SERVICE 权限。
@@ -46,10 +47,11 @@ public class MediaProjectionForegroundService extends Service {
         String channelId = "screen_share_id";
 
         // 从 API 26 开始必须有 NotificationChannel 才能发送 Notification
+        // 参考：https://developer.android.com/training/notify-user/channels
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(channelId, MediaProjectionForegroundService.class.getSimpleName(), importance);
-            channel.setDescription("即将开始屏幕录制");
+            channel.setDescription("The app is about to record the screen");
             channel.enableLights(true);
             channel.setLightColor(Color.RED);
             channel.enableVibration(true);
@@ -60,11 +62,11 @@ public class MediaProjectionForegroundService extends Service {
 
         // 创建 notification 并设置 notification channel
         Notification notification = new NotificationCompat.Builder(this, channelId)
-                .setContentText("正在进行屏幕录制")
-                .setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
-                .setColor(getResources().getColor(R.color.teal_200))
+                .setContentTitle("Screen Recording")
+                .setContentText("Recording the screen")
                 .setWhen(System.currentTimeMillis())
                 .build();
+
         startForeground(new Random().nextInt(1024) + 1024, notification);
     }
 }

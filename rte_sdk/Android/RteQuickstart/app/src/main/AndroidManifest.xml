@@ -12,7 +12,8 @@
         <service
             android:name=".MediaProjectionForegroundService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"
+            android:foregroundServiceType="mediaProjection"></service>
 
         <activity
             android:name=".MainActivity"
