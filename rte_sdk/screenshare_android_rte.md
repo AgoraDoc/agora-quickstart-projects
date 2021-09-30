@@ -39,7 +39,23 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   ```
 
-4. 在 `/app/res/drawable` 目录下添加 ic_notification_icon.xml 文件，作为 notification 所需的 icon。
+4. 添加一个 service，用于运行 media projection 服务。
+
+  在 `/app/Manifests/AndroidManifest.xml` 文件中添加 MediaProjectionForegroundService 服务。
+
+  ```xml
+  +      <service
+  +      android:name=".MediaProjectionForegroundService"
+  +      android:enabled="true"
+  +      android:exported="true"
+  +      android:foregroundServiceType="mediaProjection"></service>
+
+    <activity
+        android:name=".MainActivity"
+        android:exported="true">
+  ```
+
+  在 `/app/res/drawable` 目录下添加 ic_notification_icon.xml 文件，作为 notification 所需的 icon。
 
   ```xml
   <?xml version="1.0" encoding="utf-8"?>
@@ -60,7 +76,7 @@
   </vector>
   ```
 
-5. 添加一个 service，用于运行 media projection 服务。
+  创建 `/app/java/com.example.rtequickstart/MediaProjectionForegroundService.java` 文件。
 
   ```java
   package com.example.rtequickstart;
@@ -141,7 +157,227 @@
   }
   ```
 
-6. 对 `/app/java/com.example.rtequickstart/MainActivity.java` 文件做如下修改。
+5. 对 `/app/java/com.example.rtequickstart/MainActivity.java` 文件做如下修改。
+
+```diff
+@@ -1,15 +1,23 @@
+ package com.example.rtequickstart;
+
++import androidx.annotation.RequiresApi;
+ import androidx.core.app.ActivityCompat;
+ import androidx.core.content.ContextCompat;
++import androidx.activity.result.ActivityResultLauncher;
++import androidx.activity.result.contract.ActivityResultContracts;
+
+ import android.Manifest;
++import android.content.Context;
++import android.content.Intent;
+ import android.content.pm.PackageManager;
++import android.os.Build;
+ import android.util.TypedValue;
+ import android.view.SurfaceView;
++
+ import android.view.View;
+ import android.view.ViewGroup;
+ import android.widget.FrameLayout;
++import android.media.projection.MediaProjectionManager;
+
+ import java.util.List;
+ import java.util.Random;
+@@ -33,7 +41,9 @@
+ import io.agora.rte.media.stream.AgoraRteMediaStreamInfo;
+ import io.agora.rte.media.track.AgoraRteCameraVideoTrack;
+ import io.agora.rte.media.track.AgoraRteMicrophoneAudioTrack;
++import io.agora.rte.media.track.AgoraRteScreenVideoTrack;
+ import io.agora.rte.media.video.AgoraRteVideoCanvas;
++import io.agora.rte.media.video.AgoraRteVideoEncoderConfiguration;
+ import io.agora.rte.media.video.AgoraRteVideoSubscribeOptions;
+
+ import io.agora.rte.scene.AgoraRteConnectionChangedReason;
+@@ -53,13 +63,17 @@
+     // 你的 Agora scene name
+     private String sceneId = "testScene";
+     // 自动生成随机 user ID
+-    private String userId = String.valueOf(new Random().nextInt(1024));
++    private String userId = "user_" + String.valueOf(new Random().nextInt(1024));
+
+     // 你的 Token。在本示例中设为 ""
+     private String token = "";
+
+     // 自动生成随机流 ID
+-    private String streamId = String.valueOf(new Random().nextInt(1024));
++    private String streamId = "stream_" + String.valueOf(new Random().nextInt(1024));
++    private String screenStreamId = "screen_stream_" + String.valueOf(new Random().nextInt(1024));
++
++    private Intent mediaProjectionIntent;
++    private ActivityResultLauncher<Intent> activityResultLauncher;
+
+     // Scene 对象
+     public AgoraRteScene mScene;
+@@ -69,11 +83,22 @@
+     public AgoraRteCameraVideoTrack mLocalVideoTrack;
+     // 麦克风音频轨道对象
+     public AgoraRteMicrophoneAudioTrack mLocalAudioTrack;
++    // 屏幕录制视频轨道对象
++    public AgoraRteScreenVideoTrack mScreenVideoTrack;
+     // 加入 scene 选项对象
+     public AgoraRteSceneJoinOptions options;
+
+     public AgoraRteMediaFactory mMediaFactory;
+
++    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
++    private void initScreenActivity() {
++        mediaProjectionIntent = new Intent(this, MediaProjectionForegroundService.class);
++        MediaProjectionManager mgr = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
++        Intent intent = mgr.createScreenCaptureIntent();
++        activityResultLauncher.launch(intent);
++    }
++
++
+     // 处理设备权限
+     private static final int PERMISSION_REQ_ID = 22;
+
+@@ -95,27 +120,36 @@ private boolean checkSelfPermission(String permission, int requestCode) {
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         setContentView(R.layout.activity_main);
++
+         // 1. 初始化 SDK
+         initAgoraRteSDK();
+         // 2. 初始化 AgoraRteSceneEventHandler 对象
+         registerEventHandler();
+-        // 3. 申请设备权限。权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
++        // 3. 申请设备权限。权限申请成功后：
++        // createAndJoinScene 创建并加入场景, 监听远端媒体流并发送本地媒体流
++        // registerScreenActivity 注册监听器，在 media projection activity 完成时创建并发布屏幕录制视频轨道
+         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
+                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
+             createAndJoinScene(sceneId, userId, token);
++            registerScreenActivity();
+         }
+
+-    }
++        // 4. 启动屏幕录制进程
++        initScreenActivity();
++        }
+
+     protected void onDestroy() {
+         super.onDestroy();
+
+-        // 3. 离开 scene
++        // 1. 停止屏幕录制
++        this.stopService(mediaProjectionIntent);
++
++        // 2. 离开 scene
+         /**
+          * 离开 scene。
+          */
+         mScene.leave();
+-        // 4. 销毁 AgoraRteSDK 对象
++        // 3. 销毁 AgoraRteSDK 对象
+         /**
+          * 销毁 AgoraRteSDK 对象。
+          *
+@@ -155,7 +189,7 @@ public void createAndJoinScene(String sceneId, String userId, String token) {
+          */
+         mScene = AgoraRteSDK.createRteScene(sceneId, sceneConfig);
+
+-        // 注册 scene event handler
++        // 注册场景事件监听器
+         mScene.registerSceneEventHandler(mAgoraHandler);
+
+         options = new AgoraRteSceneJoinOptions();
+@@ -174,6 +208,32 @@ public void createAndJoinScene(String sceneId, String userId, String token) {
+         mScene.join(userId, token, options);
+     }
+
++    // 通过 mediaProjection 返回的 activity result 创建并发布屏幕录制视频轨道
++    public void registerScreenActivity(){
++        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
++
++            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
++                // this.startForegroundService(mediaProjectionIntent);
++                this.startForegroundService(mediaProjectionIntent);
++
++            } else {
++                this.startService(mediaProjectionIntent);
++            }
++
++            if (result.getResultCode() == RESULT_OK) {
++                if (mScreenVideoTrack == null) {
++                    // 创建屏幕录制视频轨道
++                    mScreenVideoTrack = AgoraRteSDK.getRteMediaFactory().createScreenVideoTrack();
++                }
++                mScene.createOrUpdateRTCStream(screenStreamId, new AgoraRtcStreamOptions());
++                mScreenVideoTrack.startCaptureScreen(result.getData(), new AgoraRteVideoEncoderConfiguration.VideoDimensions());
++
++                // 发布屏幕录制视频轨道
++                mScene.publishLocalVideoTrack(screenStreamId, mScreenVideoTrack);
++            }
++        });
++    }
++
+     // 初始化 AgoraRteSceneEventHandler 对象
+     public void registerEventHandler(){
+         // 创建 AgoraRteSceneEventHandler 对象
+@@ -292,6 +352,8 @@ public void onCameraStateChanged(AgoraRteCameraState agoraRteCameraState, AgoraR
+                      * <0：方法调用失败。
+                      */
+                     mScene.publishLocalAudioTrack(streamId, mLocalAudioTrack);
++
++
+                 }
+             }
+
+@@ -331,6 +393,8 @@ public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
+
+                 for (AgoraRteMediaStreamInfo info : streams) {
+
++                    System.out.println("新增 stream ID：" + info.getStreamId());
++
+                     /**
+                      * 订阅远端视频。
+                      *
+@@ -346,8 +410,8 @@ public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
+                     mScene.subscribeRemoteAudio(info.getStreamId());
+
+                     LinearLayout container = findViewById(R.id.remote_video_view_container);
+-                    SurfaceView view = new SurfaceView (getBaseContext());
+
++                    SurfaceView view = new SurfaceView (getBaseContext());
+                     view.setZOrderMediaOverlay(true);
+
+                     view.setTag(info.getStreamId());
+@@ -355,9 +419,10 @@ public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
+                     view.setId(ViewCompat.generateViewId());
+                     view.setSaveEnabled(true);
+
++                    System.out.println(info.getStreamId() + " 的渲染 view tag 为：" + view.getTag());
++
+                     ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
+                     container.addView(view, -1, layoutParams);
+-
+                     AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
+                     /**
+                      * public static final int RENDER_MODE_HIDDEN = 1;
+@@ -375,7 +440,6 @@ public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
+                      * <0：方法调用失败。
+                      */
+                     mScene.setRemoteVideoCanvas(info.getStreamId(), canvas);
+-
+                 }
+
+             }
+@@ -391,6 +455,8 @@ public void onRemoteStreamRemoved(List<AgoraRteMediaStreamInfo> streams) {
+
+                 for (AgoraRteMediaStreamInfo info : streams) {
+
++                    System.out.println("删除 stream ID：" + info.getStreamId());
++
+                     LinearLayout container = findViewById(R.id.remote_video_view_container);
+                     View view = container.findViewWithTag(info.getStreamId());
+                     container.removeView(view);
+```
 
 ### 编译项目并运行 app
 
