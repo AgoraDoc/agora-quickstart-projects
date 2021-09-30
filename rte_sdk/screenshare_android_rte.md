@@ -317,58 +317,6 @@
 +        });
 +    }
 +
-     // 初始化 AgoraRteSceneEventHandler 对象
-     public void registerEventHandler(){
-         // 创建 AgoraRteSceneEventHandler 对象
-@@ -292,6 +352,8 @@ public void onCameraStateChanged(AgoraRteCameraState agoraRteCameraState, AgoraR
-                      * <0：方法调用失败。
-                      */
-                     mScene.publishLocalAudioTrack(streamId, mLocalAudioTrack);
-
-                 }
-             }
-
-@@ -331,6 +393,8 @@ public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
-
-                 for (AgoraRteMediaStreamInfo info : streams) {
-
-                     /**
-                      * 订阅远端视频。
-                      *
-@@ -346,8 +410,8 @@ public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
-                     mScene.subscribeRemoteAudio(info.getStreamId());
-
-                     LinearLayout container = findViewById(R.id.remote_video_view_container);
-                     SurfaceView view = new SurfaceView (getBaseContext());
-
-                     view.setZOrderMediaOverlay(true);
-
-                     view.setTag(info.getStreamId());
-@@ -355,9 +419,10 @@ public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
-                     view.setId(ViewCompat.generateViewId());
-                     view.setSaveEnabled(true);
-
-                     ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
-                     container.addView(view, -1, layoutParams);
-
-                     AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
-                     /**
-                      * public static final int RENDER_MODE_HIDDEN = 1;
-@@ -375,7 +440,6 @@ public void onRemoteStreamAdded(List<AgoraRteMediaStreamInfo> streams) {
-                      * <0：方法调用失败。
-                      */
-                     mScene.setRemoteVideoCanvas(info.getStreamId(), canvas);
-
-                 }
-
-             }
-@@ -391,6 +455,8 @@ public void onRemoteStreamRemoved(List<AgoraRteMediaStreamInfo> streams) {
-
-                 for (AgoraRteMediaStreamInfo info : streams) {
-
-                     LinearLayout container = findViewById(R.id.remote_video_view_container);
-                     View view = container.findViewWithTag(info.getStreamId());
-                     container.removeView(view);
 ```
 
 ### 编译项目并运行 app
