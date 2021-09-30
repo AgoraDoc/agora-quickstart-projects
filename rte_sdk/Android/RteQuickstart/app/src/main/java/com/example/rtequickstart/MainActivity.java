@@ -59,7 +59,7 @@ import io.agora.rte.user.AgoraRteUserInfo;
 public class MainActivity extends AppCompatActivity {
 
     // 将 <Your App ID> 替换为你的 Agora app ID
-    private String appId = "ba25e73aa85d49b0adf48330aade01e2";
+    private String appId = "<Your App ID>";
     // 你的 Agora scene name
     private String sceneId = "testScene";
     // 自动生成随机 user ID
