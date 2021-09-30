@@ -241,7 +241,7 @@
      protected void onCreate(Bundle savedInstanceState) {
          super.onCreate(savedInstanceState);
          setContentView(R.layout.activity_main);
-+
+
          // 1. 初始化 SDK
          initAgoraRteSDK();
          // 2. 初始化 AgoraRteSceneEventHandler 对象
@@ -324,8 +324,7 @@
                       * <0：方法调用失败。
                       */
                      mScene.publishLocalAudioTrack(streamId, mLocalAudioTrack);
-+
-+
+
                  }
              }
 
@@ -351,7 +350,7 @@
 
                      ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
                      container.addView(view, -1, layoutParams);
--
+
                      AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
                      /**
                       * public static final int RENDER_MODE_HIDDEN = 1;
@@ -359,7 +358,7 @@
                       * <0：方法调用失败。
                       */
                      mScene.setRemoteVideoCanvas(info.getStreamId(), canvas);
--
+
                  }
 
              }
