@@ -31,7 +31,7 @@ class ViewController: UIViewController {
     
     let sceneId = "testScene"
     
-    let appId = "ba25e73aa85d49b0adf48330aade01e2"
+    let appId = "<Your app ID>"
 
     override func viewDidLoad() {
         super.viewDidLoad()
