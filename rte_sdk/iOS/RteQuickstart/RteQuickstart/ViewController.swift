@@ -15,7 +15,8 @@ class ViewController: UIViewController {
     // Defines remoteView
     var remoteView: UIView!
     
-    @IBOutlet weak var remoteStackView: UIStackView!
+    var remoteStackView: UIStackView!
+
     // Defines instance of agoraRteSdk
     var agoraRteSdk: AgoraRteSdk!
     // Defines instance of AgoraRteSceneProtocol
@@ -42,8 +43,9 @@ class ViewController: UIViewController {
 
     override func viewDidLayoutSubviews(){
         super.viewDidLayoutSubviews()
-        localView.frame = self.view.bounds
-        
+        remoteStackView = UIStackView()
+        remoteStackView.frame = CGRect(x: self.view.bounds.width - 90, y: 0, width: 90, height: 130)
+        self.view.addSubview(remoteStackView)
     }
 
     
@@ -52,19 +54,17 @@ class ViewController: UIViewController {
         profile.appid = appId
         agoraRteSdk = AgoraRteSdk.sharedEngine(with: profile)
         
-        
         let config = AgoraRteSceneConfg()
+
         scene = agoraRteSdk.createRteScene(withSceneId: sceneId, sceneConfig: config)
         scene?.setSceneDelegate(self)
         
         localView = UIView()
-        localView.frame = CGRect(x: self.view.bounds.width - 90, y: 0, width: 90, height: 130)
+        localView.frame = self.view.bounds
         self.view.addSubview(localView)
         
-        
-        
         let options = AgoraRteJoinOptions()
-        scene.joinScene(withUserId: localUserId, token: "", joinOptions: options)
+        scene?.joinScene(withUserId: localUserId, token: "", joinOptions: options)
         
     }
 
@@ -111,9 +111,10 @@ extension ViewController: AgoraRteSceneDelegate {
                 }
                 
                 self!.remoteView = UIView()
-                self!.remoteView.frame = self!.view.bounds
+                // self!.remoteView.frame = self!.view.bounds
                 self!.remoteView.tag = Int(info.streamId!)!
                 self!.remoteStackView.addSubview(self!.remoteView)
+                self!.remoteStackView.bringSubviewToFront(self!.remoteView)
                 
                 let videoCanvas = AgoraRtcVideoCanvas()
                 videoCanvas.userId = info.userId!
