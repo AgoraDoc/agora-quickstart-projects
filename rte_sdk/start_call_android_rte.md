@@ -277,7 +277,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
          * 初始化 SDK。
          * @param config SDK 配置。
          *
-         * @return AgoraRteScene 对象。
+         * @return AgoraRteSDK 对象。
          */
         AgoraRteSDK.init(config);
         }
