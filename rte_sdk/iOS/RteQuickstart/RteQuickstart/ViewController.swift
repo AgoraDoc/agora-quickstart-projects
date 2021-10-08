@@ -44,7 +44,7 @@ class ViewController: UIViewController {
         // 离开场景
         scene?.leave()
         // 销毁 SDK 对象
-        agoraRteSdk?.destroy()
+        AgoraRteSdk.destroy()
     }
 
 

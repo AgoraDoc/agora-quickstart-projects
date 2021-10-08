@@ -196,7 +196,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             // 离开场景
             scene?.leave()
             // 销毁 SDK 对象
-            agoraRteSdk?.destroy()
+            AgoraRteSdk.destroy()
         }
     ```
 
