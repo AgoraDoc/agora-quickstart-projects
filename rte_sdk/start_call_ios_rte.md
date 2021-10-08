@@ -384,4 +384,4 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 - 启动 app，你会在本地视图中看到自己。
 - 在另一台设备或模拟器上运行 app，你可以看到在远端视图看到对端设备采集的视频。
 
-![demo](images/ios_demo.png)
+> 使用 Agora_Native_SDK_for_iOS_rel.v3.6.200_42059_full_20211008_0040 包测试通过。
