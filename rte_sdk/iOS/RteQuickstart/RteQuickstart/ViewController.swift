@@ -2,6 +2,10 @@
 //  ViewController.swift
 //  RteQuickstart
 //
+//  Created by macoscatalina on 2021/10/8.
+//  Copyright © 2021 macoscatalina. All rights reserved.
+//
+
 import UIKit
 import AgoraRTE
 
@@ -12,9 +16,9 @@ class ViewController: UIViewController {
     var localView: UIView!
     // 用于渲染远端视频的 UIView 对象
     var remoteStackView: UIStackView!
-    var remoteView: UIView!
     // SDK 对象
     var agoraRteSdk: AgoraRteSdk!
+
     // 场景对象
     var scene: AgoraRteSceneProtocol!
     // 麦克风音频轨道对象
@@ -28,16 +32,16 @@ class ViewController: UIViewController {
     // 场景 ID
     let sceneId = "testScene"
     // 你的 Agora App ID
-    let appId = "<Your app ID>"
+    let appId = "<Your App ID>"
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        // 1. 初始化 SDK
         initSdk()
-        // 2. 加入场景，开始发流
         createAndJoinScene()
     }
+
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
@@ -47,18 +51,27 @@ class ViewController: UIViewController {
         AgoraRteSdk.destroy()
     }
 
-
     func initSdk(){
         // 初始化 AgoraRteSdk 对象
         let profile = AgoraRteSdkProfile()
         profile.appid = appId
         /**
-         * 初始化 SDK。
-         * @param profile SDK 配置。
-         *
-         * @return AgoraRteSdk 对象。
-         */
+        * 初始化 SDK。
+        * @param profile SDK 配置。
+        *
+        * @return AgoraRteSdk 对象。
+        */
         agoraRteSdk = AgoraRteSdk.sharedEngine(with: profile)
+
+        localView = UIView()
+        localView.frame = self.view.bounds
+
+        remoteStackView = UIStackView()
+        remoteStackView.frame = CGRect(x: self.view.bounds.width - 180, y: 0, width: 180, height: 360)
+        remoteStackView.axis = .vertical
+        remoteStackView.distribution = .fillEqually
+        self.view.addSubview(remoteStackView)
+
     }
 
     func createAndJoinScene(){
@@ -70,14 +83,14 @@ class ViewController: UIViewController {
         scene?.setSceneDelegate(self)
 
         // 创建并添加本地 view
-        localView = UIView()
-        localView.frame = self.view.bounds
+
         self.view.addSubview(localView)
 
         // 加入场景
         let options = AgoraRteJoinOptions()
         scene.joinScene(withUserId: localUserId, token: "", joinOptions: options)
     }
+
 
 }
 
@@ -92,10 +105,10 @@ extension ViewController: AgoraRteSceneDelegate {
             let mediaFactory = agoraRteSdk.rteMediaFactory()
             // 创建摄像头视频轨道
             /**
-             * 创建摄像头采集视频轨道
-             *
-             * @return AgoraRteCameraVideoTrack 对象。
-             */
+            * 创建摄像头采集视频轨道
+            *
+            * @return AgoraRteCameraVideoTrack 对象。
+            */
             cameraTrack = mediaFactory?.createCameraVideoTrack()
 
             let videoCanvas = AgoraRtcVideoCanvas()
@@ -106,23 +119,23 @@ extension ViewController: AgoraRteSceneDelegate {
             // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
             // 设置预览画布
             /**
-             * 设置预览画布。
-             * @param canvas AgoraRteVideoCanvas 对象。
-             *
-             * @return
-             * 0：方法调用成功。
-             * <0：方法调用失败。
-             */
+            * 设置预览画布。
+            * @param canvas AgoraRteVideoCanvas 对象。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            */
             cameraTrack?.setPreviewCanvas(videoCanvas)
 
             // 摄像头开始捕获视频
-             /**
-               * 开始摄像头采集。
-               *
-               * @return
-               * 0：方法调用成功。
-               * <0：方法调用失败。
-               */
+            /**
+            * 开始摄像头采集。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            */
             cameraTrack?.startCapture()
 
             // 创建麦克风音频轨道
@@ -134,45 +147,45 @@ extension ViewController: AgoraRteSceneDelegate {
             streamOption.token = ""
 
             /**
-             * 创建或更新 RTC 流。
-             * @param localStreamId 用于标识流的 ID。在一个场景中必须唯一。
-             * @param streamOption 发流选项。
-             *
-             * @return
-             * 0：方法调用成功。
-             * <0：方法调用失败。
-             *
-             */
+            * 创建或更新 RTC 流。
+            * @param localStreamId 用于标识流的 ID。在一个场景中必须唯一。
+            * @param streamOption 发流选项。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            *
+            */
             scene?.createOrUpdateRTCStream(localStreamId, rtcStreamOptions: streamOption)
 
             // 发布本地音频轨道
             /**
-              * 将本地音频轨道发布到指定流。
-              *
-              * 一个流可包含多个音频轨道。
-              *
-              * @param localStreamId 本地流的 ID。
-              * @param rteAudioTrack 要发布的视频轨道。
-              *
-              * @return
-              * 0：方法调用成功。
-              * <0：方法调用失败。
-              */
+            * 将本地音频轨道发布到指定流。
+            *
+            * 一个流可包含多个音频轨道。
+            *
+            * @param localStreamId 本地流的 ID。
+            * @param rteAudioTrack 要发布的视频轨道。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            */
             scene?.publishLocalAudioTrack(localStreamId, rteAudioTrack: microphoneTrack!)
 
             // 发布本地视频轨道
             /**
-             * 将本地视频轨道发布到指定流。
-             *
-             * 一个流最多可包含一个视频轨道。
-             *
-             * @param localStreamId 本地流的 ID。
-             * @param rteVideoTrack 要发布的视频轨道。
-             *
-             * @return
-             * 0：方法调用成功。
-             * <0：方法调用失败。
-             */
+            * 将本地视频轨道发布到指定流。
+            *
+            * 一个流最多可包含一个视频轨道。
+            *
+            * @param localStreamId 本地流的 ID。
+            * @param rteVideoTrack 要发布的视频轨道。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            */
             scene?.publishLocalVideoTrack(localStreamId, rteVideoTrack: cameraTrack!)
         }
     }
@@ -185,11 +198,11 @@ extension ViewController: AgoraRteSceneDelegate {
             rteScene.subscribeRemoteAudio(info.streamId!)
             let option = AgoraRteVideoSubscribeOptions()
             /**
-              * 订阅远端视频。
-              *
-              * @param remoteStreamId 远端流 ID。
-              * @param videoSubscribeOptions 订阅选项。
-              */
+            * 订阅远端视频。
+            *
+            * @param remoteStreamId 远端流 ID。
+            * @param videoSubscribeOptions 订阅选项。
+            */
             rteScene.subscribeRemoteVideo(info.streamId!, videoSubscribeOptions: option)
 
             DispatchQueue.main.async { [weak self] in
@@ -197,15 +210,14 @@ extension ViewController: AgoraRteSceneDelegate {
                     return
                 }
 
-                self!.remoteView = UIView()
-                self!.remoteView.frame = CGRect(x: self!.view.bounds.width - 90, y: 0, width: 90, height: 130)
-                self!.remoteView.tag = Int(info.streamId!)!
-                self!.remoteStackView.addSubview(self!.remoteView)
+                let remoteView = UIView()
+                remoteView.tag = Int(info.streamId!)!
+                strongSelf.remoteStackView.addArrangedSubview(remoteView)
 
                 let videoCanvas = AgoraRtcVideoCanvas()
-                videoCanvas.userId = info.userId!
-                videoCanvas.view = strongSelf.remoteView
-                videoCanvas.renderMode = .hidden
+                // videoCanvas.userId = info.userId!
+                videoCanvas.view = remoteView
+                videoCanvas.renderMode = .fit
                 /**
                 * 设置远端视频渲染画布。
                 * @param remoteStreamId 远端流的 ID。
@@ -224,18 +236,18 @@ extension ViewController: AgoraRteSceneDelegate {
     func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, remoteStreamDidRemoveWith streamInfos: [AgoraRteStreamInfo]?) {
         guard let infos = streamInfos else { return }
         for info in infos {
-             /**
-              * 取消订阅视频。
-              *
-              * @param remoteStreamId 远端流的 ID。
-              */
+            /**
+            * 取消订阅视频。
+            *
+            * @param remoteStreamId 远端流的 ID。
+            */
             rteScene.unsubscribeRemoteAudio(info.streamId!)
 
             /**
-             * 取消订阅音频。
-             *
-             * @param remoteStreamId 远端流的 ID。
-             */
+            * 取消订阅音频。
+            *
+            * @param remoteStreamId 远端流的 ID。
+            */
             rteScene.unsubscribeRemoteAudio(info.streamId!)
 
             let viewToRemove = self.remoteStackView.viewWithTag(Int(info.streamId!)!)!
@@ -244,4 +256,3 @@ extension ViewController: AgoraRteSceneDelegate {
         }
 
 }
-
