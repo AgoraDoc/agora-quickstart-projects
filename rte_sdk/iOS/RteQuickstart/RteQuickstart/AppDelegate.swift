@@ -2,12 +2,13 @@
 //  AppDelegate.swift
 //  RteQuickstart
 //
-//  Created by 王璐 on 2021/10/6.
+//  Created by macoscatalina on 2021/10/8.
+//  Copyright © 2021 macoscatalina. All rights reserved.
 //
 
 import UIKit
 
-@main
+@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
