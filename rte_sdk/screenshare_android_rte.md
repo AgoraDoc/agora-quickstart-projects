@@ -8,7 +8,7 @@
 
 你已经根据 [五分钟构建视频通话应用](start_call_android_rte.md) 搭建了一个基础的视频通话应用。
 
-> 在此教程中，Android 系统需要 Android 5 或更高版本。
+> 在此教程中，Android 系统需要 Android 5 或更高版本。目前版本的 SDK （Agora_RTE_SDK_for_Android_rel.v3.6.200_17209_full_20210924_0241）存在 bug，在 Android Oreo 及更高版本的系统中无法录制屏幕：https://jira.agoralab.co/browse/MS-71319 。
 > 实测在夜神模拟器/雷电模拟器/ Android Studio 自带模拟器（Android 5）环境下运行正常。
 
 ## 实现流程
