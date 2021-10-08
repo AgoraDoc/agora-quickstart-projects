@@ -637,3 +637,5 @@ repositories {
 ...
 }
 ```
+
+> 使用 SDK 包 Agora_RTE_SDK_for_Android_rel.v3.6.200_17209_full_20210924_0241 实测通过
