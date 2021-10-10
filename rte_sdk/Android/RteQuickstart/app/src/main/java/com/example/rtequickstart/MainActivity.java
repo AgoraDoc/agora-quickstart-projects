@@ -93,6 +93,15 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initScreenActivity() {
         mediaProjectionIntent = new Intent(this, MediaProjectionForegroundService.class);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // this.startForegroundService(mediaProjectionIntent);
+                this.startForegroundService(mediaProjectionIntent);
+
+            } else {
+                this.startService(mediaProjectionIntent);
+            }
+
         MediaProjectionManager mgr = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         Intent intent = mgr.createScreenCaptureIntent();
         activityResultLauncher.launch(intent);
@@ -211,14 +220,6 @@ public class MainActivity extends AppCompatActivity {
     // 通过 mediaProjection 返回的 activity result 创建并发布屏幕录制视频轨道
     public void registerScreenActivity(){
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // this.startForegroundService(mediaProjectionIntent);
-                this.startForegroundService(mediaProjectionIntent);
-
-            } else {
-                this.startService(mediaProjectionIntent);
-            }
 
             if (result.getResultCode() == RESULT_OK) {
                 if (mScreenVideoTrack == null) {
