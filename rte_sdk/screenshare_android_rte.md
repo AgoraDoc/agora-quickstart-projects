@@ -15,7 +15,7 @@
 
 对你已经搭建的应用做以下变更。
 
-1. 在 `Gradle Scripts/build.gradle(Module: RteQuickstart.app)` 文件中将 minSdk改为 21。这也是实现屏幕录制功能要求的最低 Android 版本。
+1. 在 `Gradle Scripts/build.gradle(Module: RteQuickstart.app)` 文件中将 `minSdk` 改为 `21`。这也是实现屏幕录制功能要求的最低 Android 版本。
 
   ```diff
   - minSdk 16
