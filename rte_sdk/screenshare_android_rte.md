@@ -55,7 +55,7 @@
         android:exported="true">
   ```
 
-  在 `/app/res/drawable` 目录下添加 ic_notification_icon.xml 文件，作为 notification 所需的 icon。
+  在 `/app/res/drawable` 目录下添加 `ic_notification_icon.xml` 文件，作为 notification 所需的 icon。
 
   ```xml
   <?xml version="1.0" encoding="utf-8"?>
@@ -76,7 +76,7 @@
   </vector>
   ```
 
-  创建 `/app/java/com.example.rtequickstart/MediaProjectionForegroundService.java` 文件。
+  创建 `/app/java/com.example.rtequickstart/MediaProjectionForegroundService.java` 文件，作为 MediaProjectionForegroundService 服务的逻辑。
 
   ```java
   package com.example.rtequickstart;
