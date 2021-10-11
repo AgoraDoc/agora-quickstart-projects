@@ -290,8 +290,7 @@
           */
          mScene = AgoraRteSDK.createRteScene(sceneId, sceneConfig);
 
--        // 注册 scene event handler
-+        // 注册场景事件监听器
+         // 注册场景事件监听器
          mScene.registerSceneEventHandler(mAgoraHandler);
 
          options = new AgoraRteSceneJoinOptions();
