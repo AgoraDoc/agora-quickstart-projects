@@ -229,15 +229,13 @@
 +    private void initScreenActivity() {
 +        mediaProjectionIntent = new Intent(this, MediaProjectionForegroundService.class);
 
-+        // 对于 LOLLIPOP 或之后的 Android 系统，必须在开启 foreground service 之后再开启 mediaProjection service   
++        // 对于 LOLLIPOP 或之后的 Android 系统，必须在开启 foreground service 之后再开启 mediaProjection service
 +        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-+                // this.startForegroundService(mediaProjectionIntent);
-+                this.startForegroundService(mediaProjectionIntent);
-+
-+            } else {
-+                this.startService(mediaProjectionIntent);
++            this.startForegroundService(mediaProjectionIntent);
 +            }
-+        
++        else {
++            this.startService(mediaProjectionIntent);
++        }
 +        MediaProjectionManager mgr = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 +        Intent intent = mgr.createScreenCaptureIntent();
 +        activityResultLauncher.launch(intent);
