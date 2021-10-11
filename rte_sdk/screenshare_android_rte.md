@@ -43,7 +43,7 @@
 
   在 `/app/Manifests/AndroidManifest.xml` 文件中添加 MediaProjectionForegroundService 服务。
 
-  ```xml
+  ```diff
   +      <service
   +      android:name=".MediaProjectionForegroundService"
   +      android:enabled="true"
