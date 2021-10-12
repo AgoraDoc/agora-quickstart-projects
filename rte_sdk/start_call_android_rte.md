@@ -29,6 +29,8 @@
 
 本节介绍如何使用 Agora SDK 在客户端构建视频通话应用。
 
+> 本教程使用 **Android Studio Arctic Fox 2020.3.1**。如果你使用了不同版本的 Android Studio，在界面上可能存在细微差别。
+
 ### 创建 Agora 项目
 
 按照以下步骤，在控制台创建一个 Agora 项目。
