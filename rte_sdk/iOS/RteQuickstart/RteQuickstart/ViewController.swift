@@ -26,9 +26,9 @@ class ViewController: UIViewController {
     // 摄像头视频轨道对象
     var cameraTrack: AgoraRteCameraVideoTrackProtocol!
     // 本地流 ID。本示例自动生成随机流 ID
-    let localStreamId = String(UInt.random(in: 1000...2000))
+    let localStreamId = "user_" + String(UInt.random(in: 1000...2000))
     // 本地用户 ID。本示例自动生成随机用户 ID
-    let localUserId = String(UInt.random(in: 1000...2000))
+    let localUserId = "stream_" + String(UInt.random(in: 1000...2000))
     // 场景 ID
     let sceneId = "testScene"
     // 你的 Agora App ID
