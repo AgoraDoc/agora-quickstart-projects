@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
             createAndJoinScene(sceneId, userId, token);
+            createAndPublishStream(streamId);
         }
 
     }
@@ -172,7 +173,9 @@ public class MainActivity extends AppCompatActivity {
          * <0：方法调用失败。
          */
         mScene.join(userId, token, options);
+    }
 
+    public void createAndPublishStream(String streamId){
         // 创建实时音视频流
         AgoraRtcStreamOptions streamOption = new AgoraRtcStreamOptions();
         /**
