@@ -1,4 +1,4 @@
-# 五分钟构建视频通话应用
+# 十分钟构建 iOS 视频通话应用
 
 你可以通过在 app 客户端集成 Agora RTE SDK 实现实时音视频互动。
 
@@ -72,7 +72,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 ### 集成 Agora SDK
 
-1. 将 `libs` 文件夹中的动态库复制到项目的 `./project_name` 文件夹下（`project_name` 为你的项目名称）。
+1. 获取 Agora RTE iOS SDK 并解压。将 `libs` 文件夹中的动态库复制到项目的 `./RteQuickstart` 文件夹下。
 
 2. 打开 Xcode，进入 **TARGETS > Project Name > General > Frameworks, Libraries, and Embedded Content** 菜单。
 

@@ -1,4 +1,4 @@
-# 五分钟构建视频通话应用
+# 十分钟构建 Android 视频通话应用
 
 你可以通过在 app 客户端集成 Agora RTE SDK 实现实时音视频互动。
 
@@ -14,7 +14,7 @@
 
 1. 创建流。你可以创建一个或多个流。每个流可以最多包含一个视频轨道，但可以包含多个音频轨道。
 2. 加入场景。
-3. 在场景中发布/接收流。
+3. 在场景中发布和订阅流。
 
 ## 前提条件
 
@@ -29,17 +29,23 @@
 
 本节介绍如何使用 Agora SDK 在客户端构建视频通话应用。
 
+> 本教程使用 **Android Studio Arctic Fox 2020.3.1**。如果你使用了不同版本的 Android Studio，在界面上可能存在细微差别。
+
 ### 创建 Agora 项目
 
-按照以下步骤，在控制台创建一个 Agora 项目。如果你已经创建了 Agora 项目，请确保项目的鉴权机制是 **APP ID**。
+按照以下步骤，在控制台创建一个 Agora 项目。
 
-1. 登录 Agora [控制台](https://console.agora.io/)，点击左侧导航栏 ![img](https://web-cdn.agora.io/docs-files/1594283671161) **项目管理**按钮进入[项目管理](https://dashboard.agora.io/projects)页面。
+> 如果你已经创建了 Agora 项目，请确保项目的鉴权机制是 **调试模式：APP ID**。本教程不支持开启**安全模式：开启 App ID + Token** 的 Agora 项目。
+
+1. 登录 Agora [控制台](https://console.agora.io/)，点击左侧导航栏 ![img](images/button.png) **项目管理**按钮进入[项目管理](https://dashboard.agora.io/projects)页面。
 
 2. 在**项目管理**页面，点击**创建**按钮。
 
-   [![img](https://web-cdn.agora.io/docs-files/1594287028966)](https://dashboard.agora.io/projects)
+   [![img](images/create.png)](https://dashboard.agora.io/projects)
 
-3. 在弹出的对话框内输入**项目名称**，选择**鉴权机制**为 **APP ID**。Agora 推荐只在测试环境，或对安全要求不高的场景里使用 App ID 鉴权。
+3. 在弹出的对话框内输入**项目名称**，选择**鉴权机制**为 **调试模式：APP ID**。Agora 推荐只在测试环境，或对安全要求不高的场景里使用 App ID 鉴权。
+
+   ![select](images/select.png)
 
 4. 点击**提交**，新建的项目就会显示在**项目管理**页中。
 
@@ -66,9 +72,9 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 1. 获取最新版本的 Agora RTE SDK ，并解压。
 
-2. 打开 SDK 包 `libs` 文件夹，将以下文件或子文件夹复制到你的项目路径中。如果你不需要通过 C++ 接口使用 SDK，则无需 `api` 文件夹。
+2. 打开 SDK 包 `sdk` 文件夹，将以下文件或子文件夹复制到你的项目路径中。如果你不需要通过 C++ 接口使用 SDK，则无需 `api` 文件夹。
 
-| 文件或子文件夹           | 项目路径                 |
+| 文件或子文件夹           | 项目路径（如果路径不存在请新建）                 |
 | ------------------------ | ------------------------ |
 | `agora-rte-sdk.jar` 文件 | `/app/libs/`             |
 | `arm-v8a` 文件夹         | `/app/src/main/jniLibs/` |
@@ -77,7 +83,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 | `x86_64` 文件夹          | `/app/src/main/jniLibs/` |
 | `api` 文件夹（可选）      | `/app/src/main/jniLibs/` |
 
-3. 在 `/Gradle Scripts/build.gradle(Module: rtequickstart.app)` 文件中， 对本地 Jar 包添加依赖：
+3. 在 `/Gradle Scripts/build.gradle(Module: RteQuickstart.app)` 文件中， 对本地 Jar 包添加依赖：
 
     ```gradle
     implementation fileTree(dir: 'libs', include: [ '*.jar' ])
@@ -127,14 +133,15 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     <LinearLayout
         android:id="@+id/remote_video_view_container"
         android:layout_width="206dp"
-        android:layout_height="258dp"
+        android:layout_height="360dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="18dp"
         android:layout_marginRight="18dp"
-        android:background="@android:color/darker_gray"
+        android:background="#000000"
+        android:alpha="0.00"
         android:clipChildren="true"
         android:orientation="vertical" />
 </RelativeLayout>
@@ -231,7 +238,30 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     public AgoraRteMediaFactory mMediaFactory;
     ```
 
-3. 定义实现视频通话的基本方法。
+3. 定义设备权限处理逻辑。
+
+   在 `onCreate` 方法前面添加设备权限处理逻辑。
+
+   ```java
+   // 处理设备权限
+   private static final int PERMISSION_REQ_ID = 22;
+
+   private static final String[] REQUESTED_PERMISSIONS = {
+           Manifest.permission.RECORD_AUDIO,
+           Manifest.permission.CAMERA
+   };
+
+   private boolean checkSelfPermission(String permission, int requestCode) {
+       if (ContextCompat.checkSelfPermission(this, permission) !=
+               PackageManager.PERMISSION_GRANTED) {
+           ActivityCompat.requestPermissions(this, REQUESTED_PERMISSIONS, requestCode);
+           return false;
+       }
+       return true;
+   }
+   ```
+
+4. 定义实现视频通话的基本方法。
 
     在 `onCreate` 方法后面依次定义以下方法：
     - `initAgoraRteSDK`： 初始化 SDK。
@@ -249,7 +279,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
          * 初始化 SDK。
          * @param config SDK 配置。
          *
-         * @return AgoraRteScene 对象。
+         * @return AgoraRteSDK 对象。
          */
         AgoraRteSDK.init(config);
         }
@@ -501,7 +531,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         }
         ```
 
-    - `createAndJoinScene`：创建并加入场景。只有加入相同场景的用户才可以互相发送和接收媒体流。
+    - `createAndJoinScene`：创建并加入场景。只有加入相同场景的用户才可以互相发送和订阅媒体流。
 
         ```java
         public void createAndJoinScene(String sceneId, String userId, String token) {
@@ -562,12 +592,12 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     protected void onDestroy() {
         super.onDestroy();
 
-        // 3. 离开场景
+        // 1. 离开场景
         /**
          * 离开场景。
          */
         mScene.leave();
-        // 4. 销毁 AgoraRteSDK 对象
+        // 2. 销毁 AgoraRteSDK 对象
         /**
          * 销毁 AgoraRteSDK 对象。
          *
@@ -588,3 +618,26 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 - 在另一台设备或模拟器上运行 app，你可以看到在远端视图看到对端设备采集的视频。
 
 ![demo](images/android_demo.png)
+
+## 常见问题
+
+### Android gradle sync 太慢怎么办？
+
+在 `/Gradle Scripts/build.gradle(Project: RteQuickstart)` 文件中，添加国内镜像源地址。
+
+以阿里云云效 Maven 镜像为例：
+
+```diff
+repositories {
+
+...
+
++    maven {
++      url 'https://maven.aliyun.com/repository/public/'
++    }
+
+...
+}
+```
+
+> 使用 SDK 包 Agora_RTE_SDK_for_Android_rel.v3.6.200_17209_full_20210924_0241 实测通过
