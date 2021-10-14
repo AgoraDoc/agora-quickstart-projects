@@ -40,6 +40,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         initSdk()
         createAndJoinScene()
+        createAndPublishStream()
     }
 
 
@@ -91,18 +92,8 @@ class ViewController: UIViewController {
         scene.joinScene(withUserId: localUserId, token: "", joinOptions: options)
     }
 
-
-}
-
-extension ViewController: AgoraRteSceneDelegate {
-
-    // 当连接状态为 connected 时，开始发流
-    func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, connectionStateDidChangeFromOldState oldState: AgoraConnectionState, toNewState state: AgoraConnectionState, with reason: AgoraConnectionChangedReason) {
-
-        print("Connection state has changed to:\(state.rawValue) reason:\(reason.rawValue)")
-
-        if state == AgoraConnectionState.connected {
-            let mediaFactory = agoraRteSdk.rteMediaFactory()
+    func createAndPublishStream(){
+        let mediaFactory = agoraRteSdk.rteMediaFactory()
             // 创建摄像头视频轨道
             /**
             * 创建摄像头采集视频轨道
@@ -187,8 +178,19 @@ extension ViewController: AgoraRteSceneDelegate {
             * <0：方法调用失败。
             */
             scene?.publishLocalVideoTrack(localStreamId, rteVideoTrack: cameraTrack!)
-        }
     }
+
+
+}
+
+extension ViewController: AgoraRteSceneDelegate {
+
+    // 当连接状态为 connected 时，开始发流
+    func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, connectionStateDidChangeFromOldState oldState: AgoraConnectionState, toNewState state: AgoraConnectionState, with reason: AgoraConnectionChangedReason) {
+
+        print("Connection state has changed to:\(state.rawValue) reason:\(reason.rawValue)")
+
+    }       
 
     // 远端发流时，订阅流并创建相应的 UIView 在本地进行渲染
     func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, remoteStreamesDidAddWith streamInfos: [AgoraRteStreamInfo]?) {
