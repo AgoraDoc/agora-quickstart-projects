@@ -123,9 +123,9 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     // 摄像头视频轨道对象
     var cameraTrack: AgoraRteCameraVideoTrackProtocol!
     // 本地流 ID。本示例自动生成随机流 ID
-    let localStreamId = String(UInt.random(in: 1000...2000))
+    let localStreamId = "stream_" + String(UInt.random(in: 1000...2000))
     // 本地用户 ID。本示例自动生成随机用户 ID
-    let localUserId = String(UInt.random(in: 1000...2000))
+    let localUserId = "user_" + String(UInt.random(in: 1000...2000))
     // 场景 ID
     let sceneId = "testScene"
     // 你的 Agora App ID
@@ -184,6 +184,98 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     }
     ```
 
+    - `createAndPublishStream`：创建并发送流。
+
+    ```swift
+    func createAndPublishStream(){
+        let mediaFactory = agoraRteSdk.rteMediaFactory()
+        // 创建摄像头视频轨道
+        /**
+        * 创建摄像头采集视频轨道
+        *
+        * @return AgoraRteCameraVideoTrack 对象。
+        */
+        cameraTrack = mediaFactory?.createCameraVideoTrack()
+
+        let videoCanvas = AgoraRtcVideoCanvas()
+        videoCanvas.userId = localUserId
+        videoCanvas.view = localView
+        videoCanvas.renderMode = .hidden
+
+        // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
+        // 设置预览画布
+        /**
+        * 设置预览画布。
+        * @param canvas AgoraRteVideoCanvas 对象。
+        *
+        * @return
+        * 0：方法调用成功。
+        * <0：方法调用失败。
+        */
+        cameraTrack?.setPreviewCanvas(videoCanvas)
+
+        // 摄像头开始捕获视频
+        /**
+        * 开始摄像头采集。
+        *
+        * @return
+        * 0：方法调用成功。
+        * <0：方法调用失败。
+        */
+        cameraTrack?.startCapture()
+
+        // 创建麦克风音频轨道
+        microphoneTrack = mediaFactory?.createMicrophoneAudioTrack()
+        // 麦克风开始录制音频
+        microphoneTrack?.startRecording()
+
+        let streamOption = AgoraRteRtcStreamOptions()
+        streamOption.token = ""
+
+        /**
+        * 创建或更新 RTC 流。
+        * @param localStreamId 用于标识流的 ID。在一个场景中必须唯一。
+        * @param streamOption 发流选项。
+        *
+        * @return
+        * 0：方法调用成功。
+        * <0：方法调用失败。
+        *
+        */
+        scene?.createOrUpdateRTCStream(localStreamId, rtcStreamOptions: streamOption)
+
+        // 发布本地音频轨道
+        /**
+        * 将本地音频轨道发布到指定流。
+        *
+        * 一个流可包含多个音频轨道。
+        *
+        * @param localStreamId 本地流的 ID。
+        * @param rteAudioTrack 要发布的视频轨道。
+        *
+        * @return
+        * 0：方法调用成功。
+        * <0：方法调用失败。
+        */
+        scene?.publishLocalAudioTrack(localStreamId, rteAudioTrack: microphoneTrack!)
+
+        // 发布本地视频轨道
+        /**
+        * 将本地视频轨道发布到指定流。
+        *
+        * 一个流最多可包含一个视频轨道。
+        *
+        * @param localStreamId 本地流的 ID。
+        * @param rteVideoTrack 要发布的视频轨道。
+        *
+        * @return
+        * 0：方法调用成功。
+        * <0：方法调用失败。
+        */
+        scene?.publishLocalVideoTrack(localStreamId, rteVideoTrack: cameraTrack!)
+    }
+    ```
+
 4. 在 `viewDidLoad` 回调中按顺序调用定义的基本方法。
 
     ```swift
@@ -192,8 +284,10 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             // Do any additional setup after loading the view.
             // 1. 初始化 SDK
             initSdk()
-            // 2. 加入场景，开始发流
+            // 2. 加入场景
             createAndJoinScene()
+            // 3. 开始发流
+            createAndPublishStream()
         }
     ```
 
@@ -214,97 +308,9 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     ```swift
     extension ViewController: AgoraRteSceneDelegate {
 
-    // 当连接状态为 connected 时，开始发流
+    // 返回连接状态
     func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, connectionStateDidChangeFromOldState oldState: AgoraConnectionState, toNewState state: AgoraConnectionState, with reason: AgoraConnectionChangedReason) {
-
         print("Connection state has changed to:\(state.rawValue) reason:\(reason.rawValue)")
-
-        if state == AgoraConnectionState.connected {
-            let mediaFactory = agoraRteSdk.rteMediaFactory()
-            // 创建摄像头视频轨道
-            /**
-            * 创建摄像头采集视频轨道
-            *
-            * @return AgoraRteCameraVideoTrack 对象。
-            */
-            cameraTrack = mediaFactory?.createCameraVideoTrack()
-
-            let videoCanvas = AgoraRtcVideoCanvas()
-            videoCanvas.userId = localUserId
-            videoCanvas.view = localView
-            videoCanvas.renderMode = .hidden
-
-            // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
-            // 设置预览画布
-            /**
-            * 设置预览画布。
-            * @param canvas AgoraRteVideoCanvas 对象。
-            *
-            * @return
-            * 0：方法调用成功。
-            * <0：方法调用失败。
-            */
-            cameraTrack?.setPreviewCanvas(videoCanvas)
-
-            // 摄像头开始捕获视频
-            /**
-            * 开始摄像头采集。
-            *
-            * @return
-            * 0：方法调用成功。
-            * <0：方法调用失败。
-            */
-            cameraTrack?.startCapture()
-
-            // 创建麦克风音频轨道
-            microphoneTrack = mediaFactory?.createMicrophoneAudioTrack()
-            // 麦克风开始录制音频
-            microphoneTrack?.startRecording()
-
-            let streamOption = AgoraRteRtcStreamOptions()
-            streamOption.token = ""
-
-            /**
-            * 创建或更新 RTC 流。
-            * @param localStreamId 用于标识流的 ID。在一个场景中必须唯一。
-            * @param streamOption 发流选项。
-            *
-            * @return
-            * 0：方法调用成功。
-            * <0：方法调用失败。
-            *
-            */
-            scene?.createOrUpdateRTCStream(localStreamId, rtcStreamOptions: streamOption)
-
-            // 发布本地音频轨道
-            /**
-            * 将本地音频轨道发布到指定流。
-            *
-            * 一个流可包含多个音频轨道。
-            *
-            * @param localStreamId 本地流的 ID。
-            * @param rteAudioTrack 要发布的视频轨道。
-            *
-            * @return
-            * 0：方法调用成功。
-            * <0：方法调用失败。
-            */
-            scene?.publishLocalAudioTrack(localStreamId, rteAudioTrack: microphoneTrack!)
-
-            // 发布本地视频轨道
-            /**
-            * 将本地视频轨道发布到指定流。
-            *
-            * 一个流最多可包含一个视频轨道。
-            *
-            * @param localStreamId 本地流的 ID。
-            * @param rteVideoTrack 要发布的视频轨道。
-            *
-            * @return
-            * 0：方法调用成功。
-            * <0：方法调用失败。
-            */
-            scene?.publishLocalVideoTrack(localStreamId, rteVideoTrack: cameraTrack!)
         }
     }
 
