@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
         // 3. 申请设备权限。权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
-            createAndJoinScene(sceneId, userId, token);
-            createAndPublishStream(streamId);
+            createAndJoinScene();
+            createAndPublishStream();
         }
 
     }
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         AgoraRteSDK.init(config);
     }
 
-    public void createAndJoinScene(String sceneId, String userId, String token) {
+    public void createAndJoinScene() {
         // 创建 scene
         AgoraRteSceneConfig sceneConfig = new AgoraRteSceneConfig();
         /**
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         mScene.join(userId, token, options);
     }
 
-    public void createAndPublishStream(String streamId){
+    public void createAndPublishStream(){
         // 创建实时音视频流
         AgoraRtcStreamOptions streamOption = new AgoraRtcStreamOptions();
         /**

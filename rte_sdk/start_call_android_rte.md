@@ -423,7 +423,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     - `createAndJoinScene`：创建并加入场景。只有加入相同场景的用户才可以互相发送和订阅媒体流。
 
         ```java
-        public void createAndJoinScene(String sceneId, String userId, String token) {
+        public void createAndJoinScene() {
         // 创建场景
         AgoraRteSceneConfig sceneConfig = new AgoraRteSceneConfig();
         /**
@@ -457,7 +457,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     - `createAndPublishStream`：创建并发布流。
 
         ```java
-        public void createAndPublishStream(String streamId){
+        public void createAndPublishStream(){
             // 创建实时音视频流
             AgoraRtcStreamOptions streamOption = new AgoraRtcStreamOptions();
             /**
@@ -583,8 +583,8 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         // 3. 申请设备权限。权限申请成功后，创建并加入场景, 监听远端媒体流并发送本地媒体流
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
-            createAndJoinScene(sceneId, userId, token);
-            createAndPublishStream(streamId);
+            createAndJoinScene();
+            createAndPublishStream();
         }
 
     }
