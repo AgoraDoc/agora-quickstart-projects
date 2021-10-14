@@ -53,13 +53,13 @@ public class MainActivity extends AppCompatActivity {
     // 你的 Agora scene name
     private String sceneId = "testScene";
     // 自动生成随机 user ID
-    private String userId = String.valueOf(new Random().nextInt(1024));
+    private String userId = "user_" + String.valueOf(new Random().nextInt(1024));
 
     // 你的 Token。在本示例中设为 ""
     private String token = "";
 
     // 自动生成随机流 ID
-    private String streamId = String.valueOf(new Random().nextInt(1024));
+    private String streamId = "stream_" + String.valueOf(new Random().nextInt(1024));
 
     // Scene 对象
     public AgoraRteScene mScene;

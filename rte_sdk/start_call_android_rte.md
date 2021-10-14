@@ -214,13 +214,13 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     // 你的 Agora 场景名。本示例设为 "testScene"
     private String sceneId = "testScene";
     // 用户 ID。本示例自动生成随机 user ID
-    private String userId = String.valueOf(new Random().nextInt(1024));
+    private String userId = "user_" + String.valueOf(new Random().nextInt(1024));
 
     // 你的 Token。在本示例中设为 ""
     private String token = "";
 
     // 流 ID。本示例自动生成随机流 ID
-    private String streamId = String.valueOf(new Random().nextInt(1024));
+    private String streamId = "stream" + String.valueOf(new Random().nextInt(1024));
 
     // 场景对象
     public AgoraRteScene mScene;
