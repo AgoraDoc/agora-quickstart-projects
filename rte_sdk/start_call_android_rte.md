@@ -262,6 +262,8 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 4. 定义实现视频通话的基本方法。
 
     在 `onCreate` 方法后面依次定义以下方法：
+
+
     - `initAgoraRteSDK`： 初始化 SDK。
 
         ```java
@@ -580,17 +582,42 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         initAgoraRteSDK();
         // 2. 初始化 AgoraRteSceneEventHandler 对象
         registerEventHandler();
-        // 3. 申请设备权限。权限申请成功后，创建并加入场景, 监听远端媒体流并发送本地媒体流
+        // 3. 检查是否满足权限要求。
+        // 如果满足要求，则执行加入场景、发流等操作。
+        // 如果不满足要求，则请求相关权限。并在 onRequestPermissionsResult 回调中进行加入场景、发流等操作。
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
+            // 创建并加入场景
             createAndJoinScene();
+            // 创建流并在场景中发布流
             createAndPublishStream();
         }
 
     }
     ```
 
-5. 在 `onCreate` 回调后定义 `onDestroy` 回调。在 `onDestroy` 回调中离开场景并销毁 AgoraRteSDK 对象。
+5. 在 `onCreate` 回调后定义以下回调：
+
+
+   - `onRequestPermissionsResult` 回调：权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+
+    ```java
+    // 权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            String[] permissions,
+            int[] grantResults
+    ){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // 创建并加入场景
+        createAndJoinScene();
+        // 创建流并在场景中发布流
+        createAndPublishStream();
+    }
+    ```
+
+   - `onDestroy` 回调。在 `onDestroy` 回调中离开场景并销毁 AgoraRteSDK 对象。
 
     ```java
     protected void onDestroy() {

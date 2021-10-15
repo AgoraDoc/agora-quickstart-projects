@@ -2,6 +2,7 @@ package com.example.rtequickstart;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -10,19 +11,14 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.os.Bundle;
 
 import java.util.List;
 import java.util.Random;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
-
-import android.os.Bundle;
-import android.widget.LinearLayout;
-
 import io.agora.rte.AgoraRteSDK;
 import io.agora.rte.AgoraRteSdkConfig;
-
 import io.agora.rte.base.AgoraRteLogConfig;
 
 import io.agora.rte.media.AgoraRteMediaFactory;
@@ -71,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     public AgoraRteMicrophoneAudioTrack mLocalAudioTrack;
     // 加入 scene 选项对象
     public AgoraRteSceneJoinOptions options;
-
+    // 媒体工厂对象
     public AgoraRteMediaFactory mMediaFactory;
 
     // 处理设备权限
@@ -99,13 +95,28 @@ public class MainActivity extends AppCompatActivity {
         initAgoraRteSDK();
         // 2. 初始化 AgoraRteSceneEventHandler 对象
         registerEventHandler();
-        // 3. 申请设备权限。权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+        // 3. 如果有权限，则执行加入场景和发流操作；如果没有权限，则申请权限。
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
+            // 创建并加入场景
             createAndJoinScene();
+            // 创建流并在场景中发布流
             createAndPublishStream();
         }
+    }
 
+    // 权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            String[] permissions,
+            int[] grantResults
+    ){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // 创建并加入场景
+        createAndJoinScene();
+        // 创建流并在场景中发布流
+        createAndPublishStream();
     }
 
     protected void onDestroy() {
@@ -138,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         config.context = getBaseContext();
         // 设置 log
         config.logConfig = new AgoraRteLogConfig(getBaseContext().getFilesDir().getAbsolutePath());
+
         /**
          * 初始化 SDK。
          * @param config SDK 配置。
@@ -150,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
     public void createAndJoinScene() {
         // 创建 scene
         AgoraRteSceneConfig sceneConfig = new AgoraRteSceneConfig();
+
         /**
          * 创建 scene。
          * @param sceneId 用于标识 Scene 的 ID。
@@ -259,8 +272,8 @@ public class MainActivity extends AppCompatActivity {
          * <0：方法调用失败。
          */
         mScene.publishLocalVideoTrack(streamId, mLocalVideoTrack);
-        // 创建麦克风音频轨道
 
+        // 创建麦克风音频轨道
         mLocalAudioTrack = mMediaFactory.createMicrophoneAudioTrack();
         // 开始麦克风采集音频
         /**
@@ -295,9 +308,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onConnectionStateChanged(AgoraRteSceneConnState oldState, AgoraRteSceneConnState newState, AgoraRteConnectionChangedReason reason) {
                 super.onConnectionStateChanged(oldState, newState, reason);
-
                     System.out.println("连接状态已从 " + oldState.toString() + " 变更为 " + newState.toString() + "原因是： " + reason.toString());
-
             }
 
             // 远端用户加入 scene 时触发
@@ -343,6 +354,7 @@ public class MainActivity extends AppCompatActivity {
                      * @param videoSubscribeOption 订阅选项。
                      */
                     mScene.subscribeRemoteVideo(info.getStreamId(), new AgoraRteVideoSubscribeOptions());
+
                     /**
                      * 订阅远端音频。
                      *
@@ -352,18 +364,15 @@ public class MainActivity extends AppCompatActivity {
 
                     LinearLayout container = findViewById(R.id.remote_video_view_container);
                     SurfaceView view = new SurfaceView (getBaseContext());
-
                     view.setZOrderMediaOverlay(true);
 
                     view.setTag(info.getStreamId());
-
-                    view.setId(ViewCompat.generateViewId());
-                    view.setSaveEnabled(true);
 
                     ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
                     container.addView(view, -1, layoutParams);
 
                     AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
+
                     /**
                      * public static final int RENDER_MODE_HIDDEN = 1;
                      * public static final int RENDER_MODE_FIT = 2;
