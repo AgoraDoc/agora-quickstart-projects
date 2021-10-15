@@ -115,7 +115,10 @@ public class MainActivity extends AppCompatActivity {
         /**
          * 离开 scene。
          */
-        mScene.leave();
+        if (mScene != null){
+            mScene.leave();
+        }
+
         // 4. 销毁 AgoraRteSDK 对象
         /**
          * 销毁 AgoraRteSDK 对象。

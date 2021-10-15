@@ -299,7 +299,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
                     System.out.println("连接状态已从 " + oldState.toString() + " 变更为 " + newState.toString() + "原因是： " + reason.toString());
 
                 }
-                        
+
                 // 远端用户加入场景时触发
 
                 /**
@@ -566,7 +566,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             */
             mScene.publishLocalAudioTrack(streamId, mLocalAudioTrack);
         }
-        
+
         ```
 
 4. 在 `onCreate` 回调中按顺序调用定义的基本方法。
@@ -600,7 +600,9 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         /**
          * 离开场景。
          */
-        mScene.leave();
+        if (mScene != null){
+            mScene.leave();
+        }
         // 2. 销毁 AgoraRteSDK 对象
         /**
          * 销毁 AgoraRteSDK 对象。
