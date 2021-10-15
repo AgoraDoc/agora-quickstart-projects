@@ -216,13 +216,13 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     // 你的 Agora 场景名。本示例设为 "testScene"
     private String sceneId = "testScene";
     // 用户 ID。本示例自动生成随机 user ID
-    private String userId = String.valueOf(new Random().nextInt(1024));
+    private String userId = "user_" + String.valueOf(new Random().nextInt(1024));
 
     // 你的 Token。在本示例中设为 ""
     private String token = "";
 
     // 流 ID。本示例自动生成随机流 ID
-    private String streamId = String.valueOf(new Random().nextInt(1024));
+    private String streamId = "stream" + String.valueOf(new Random().nextInt(1024));
 
     // 场景对象
     public AgoraRteScene mScene;
@@ -264,6 +264,8 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 4. 定义实现视频通话的基本方法。
 
     在 `onCreate` 方法后面依次定义以下方法：
+
+
     - `initAgoraRteSDK`： 初始化 SDK。
 
         ```java
@@ -298,117 +300,8 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
                 public void onConnectionStateChanged(AgoraRteSceneConnState oldState, AgoraRteSceneConnState newState, AgoraRteConnectionChangedReason reason) {
                     super.onConnectionStateChanged(oldState, newState, reason);
 
-                    if (newState == AgoraRteSceneConnState.CONN_STATE_CONNECTED) {
-                        System.out.println("连接状态已从 " + oldState.toString() + " 变更为 " + newState.toString() + "原因是： " + reason.toString());
+                    System.out.println("连接状态已从 " + oldState.toString() + " 变更为 " + newState.toString() + "原因是： " + reason.toString());
 
-                        // 创建实时音视频流
-                        AgoraRtcStreamOptions streamOption = new AgoraRtcStreamOptions();
-                        /**
-                        * 创建或更新 RTC 流。
-                        * @param streamId 用于标识流的 ID。在一个场景中必须唯一。
-                        * @param streamOption 发流选项。
-                        *
-                        * @return
-                        * 0：方法调用成功。
-                        * <0：方法调用失败。
-                        *
-                        */
-                        mScene.createOrUpdateRTCStream(streamId, streamOption);
-
-                        FrameLayout container = findViewById(R.id.local_video_view_container);
-
-                        mMediaFactory = AgoraRteSDK.getRteMediaFactory();
-
-                        // 创建摄像头视频轨道
-                        /**
-                        * 创建摄像头采集视频轨道
-                        *
-                        * @return AgoraRteCameraVideoTrack 对象。
-                        */
-                        mLocalVideoTrack = mMediaFactory.createCameraVideoTrack();
-
-                        // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
-                        SurfaceView view = new SurfaceView(getBaseContext());
-                        container.addView(view);
-
-                        AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
-                        if (mLocalVideoTrack != null) {
-                            // 设置本地预览的 Canvas
-                            /**
-                            * 设置预览画布。
-                            * @param canvas AgoraRteVideoCanvas 对象。
-                            *
-                            * @return
-                            * 0：方法调用成功。
-                            * <0：方法调用失败。
-                            */
-                            mLocalVideoTrack.setPreviewCanvas(canvas);
-
-                            AgoraRteCameraCaptureObserver cameraCaptureObserver = new AgoraRteCameraCaptureObserver() {
-                                /**
-                                * 摄像头状态变更时触发。
-                                * @param agoraRteCameraState 摄像头状态。
-                                * @param agoraRteCameraSource 摄像头源。
-                                */
-                                @Override
-                                public void onCameraStateChanged(AgoraRteCameraState agoraRteCameraState, AgoraRteCameraSource agoraRteCameraSource) {
-                                    System.out.println("Camera state: " + agoraRteCameraState.toString() + " Camera source: " + agoraRteCameraSource.toString());
-                                }
-                            };
-
-                            // 开始摄像头采集视频
-                            /**
-                            * 开始摄像头采集。
-                            * @param agoraRteCameraCaptureObserver 摄像头状态监听器。
-                            *
-                            * @return
-                            * 0：方法调用成功。
-                            * <0：方法调用失败。
-                            */
-                            mLocalVideoTrack.startCapture(cameraCaptureObserver);
-                        }
-                        // 发布本地视频轨道
-                        /**
-                        * 将本地视频轨道发布到指定流。
-                        *
-                        * 一个流最多可包含一个视频轨道。
-                        *
-                        * @param streamId 本地流的 ID。
-                        * @param videoTrack 要发布的视频轨道。
-                        *
-                        * @return
-                        * 0：方法调用成功。
-                        * <0：方法调用失败。
-                        */
-                        mScene.publishLocalVideoTrack(streamId, mLocalVideoTrack);
-                        // 创建麦克风音频轨道
-
-                        mLocalAudioTrack = mMediaFactory.createMicrophoneAudioTrack();
-                        // 开始麦克风采集音频
-                        /**
-                        * 开始录制音频。
-                        *
-                        * @return
-                        * 0：方法调用成功。
-                        * <0：方法调用失败。
-                        *
-                        */
-                        mLocalAudioTrack.startRecording();
-                        // 发布本地音频轨道
-                        /**
-                        * 将本地音频轨道发布到指定流。
-                        *
-                        * 一个流可包含多个音频轨道。
-                        *
-                        * @param streamId 本地流的 ID。
-                        * @param audioTrack 要发布的视频轨道。
-                        *
-                        * @return
-                        * 0：方法调用成功。
-                        * <0：方法调用失败。
-                        */
-                        mScene.publishLocalAudioTrack(streamId, mLocalAudioTrack);
-                    }
                 }
 
                 // 远端用户加入场景时触发
@@ -534,7 +427,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     - `createAndJoinScene`：创建并加入场景。只有加入相同场景的用户才可以互相发送和订阅媒体流。
 
         ```java
-        public void createAndJoinScene(String sceneId, String userId, String token) {
+        public void createAndJoinScene() {
         // 创建场景
         AgoraRteSceneConfig sceneConfig = new AgoraRteSceneConfig();
         /**
@@ -564,6 +457,120 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
          */
         mScene.join(userId, token, options);
         }
+
+    - `createAndPublishStream`：创建并发布流。
+
+        ```java
+        public void createAndPublishStream(){
+            // 创建实时音视频流
+            AgoraRtcStreamOptions streamOption = new AgoraRtcStreamOptions();
+            /**
+            * 创建或更新 RTC 流。
+            * @param streamId 用于标识流的 ID。在一个场景中必须唯一。
+            * @param streamOption 发流选项。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            *
+            */
+            mScene.createOrUpdateRTCStream(streamId, streamOption);
+
+            FrameLayout container = findViewById(R.id.local_video_view_container);
+
+            mMediaFactory = AgoraRteSDK.getRteMediaFactory();
+
+            // 创建摄像头视频轨道
+            /**
+            * 创建摄像头采集视频轨道
+            *
+            * @return AgoraRteCameraVideoTrack 对象。
+            */
+            mLocalVideoTrack = mMediaFactory.createCameraVideoTrack();
+
+            // 必须先调用 setPreviewCanvas 设置预览画布，再调用 startCapture 开始摄像头采集视频
+            SurfaceView view = new SurfaceView(getBaseContext());
+            container.addView(view);
+
+            AgoraRteVideoCanvas canvas = new AgoraRteVideoCanvas(view);
+            if (mLocalVideoTrack != null) {
+                // 设置本地预览的 Canvas
+                /**
+                * 设置预览画布。
+                * @param canvas AgoraRteVideoCanvas 对象。
+                *
+                * @return
+                * 0：方法调用成功。
+                * <0：方法调用失败。
+                */
+                mLocalVideoTrack.setPreviewCanvas(canvas);
+
+                AgoraRteCameraCaptureObserver cameraCaptureObserver = new AgoraRteCameraCaptureObserver() {
+                    /**
+                    * 摄像头状态变更时触发。
+                    * @param agoraRteCameraState 摄像头状态。
+                    * @param agoraRteCameraSource 摄像头源。
+                    */
+                    @Override
+                    public void onCameraStateChanged(AgoraRteCameraState agoraRteCameraState, AgoraRteCameraSource agoraRteCameraSource) {
+                        System.out.println("Camera state: " + agoraRteCameraState.toString() + " Camera source: " + agoraRteCameraSource.toString());
+                    }
+                };
+
+                // 开始摄像头采集视频
+                /**
+                * 开始摄像头采集。
+                * @param agoraRteCameraCaptureObserver 摄像头状态监听器。
+                *
+                * @return
+                * 0：方法调用成功。
+                * <0：方法调用失败。
+                */
+                mLocalVideoTrack.startCapture(cameraCaptureObserver);
+            }
+            // 发布本地视频轨道
+            /**
+            * 将本地视频轨道发布到指定流。
+            *
+            * 一个流最多可包含一个视频轨道。
+            *
+            * @param streamId 本地流的 ID。
+            * @param videoTrack 要发布的视频轨道。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            */
+            mScene.publishLocalVideoTrack(streamId, mLocalVideoTrack);
+            // 创建麦克风音频轨道
+
+            mLocalAudioTrack = mMediaFactory.createMicrophoneAudioTrack();
+            // 开始麦克风采集音频
+            /**
+            * 开始录制音频。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            *
+            */
+            mLocalAudioTrack.startRecording();
+            // 发布本地音频轨道
+            /**
+            * 将本地音频轨道发布到指定流。
+            *
+            * 一个流可包含多个音频轨道。
+            *
+            * @param streamId 本地流的 ID。
+            * @param audioTrack 要发布的视频轨道。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            */
+            mScene.publishLocalAudioTrack(streamId, mLocalAudioTrack);
+        }
+
         ```
 
 4. 在 `onCreate` 回调中按顺序调用定义的基本方法。
@@ -577,16 +584,42 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         initAgoraRteSDK();
         // 2. 初始化 AgoraRteSceneEventHandler 对象
         registerEventHandler();
-        // 3. 申请设备权限。权限申请成功后，创建并加入场景, 监听远端媒体流并发送本地媒体流
+        // 3. 检查是否满足权限要求。
+        // 如果满足要求，则执行加入场景、发流等操作。
+        // 如果不满足要求，则请求相关权限。并在 onRequestPermissionsResult 回调中进行加入场景、发流等操作。
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID)) {
-            createAndJoinScene(sceneId, userId, token);
+            // 创建并加入场景
+            createAndJoinScene();
+            // 创建流并在场景中发布流
+            createAndPublishStream();
         }
 
     }
     ```
 
-5. 在 `onCreate` 回调后定义 `onDestroy` 回调。在 `onDestroy` 回调中离开场景并销毁 AgoraRteSDK 对象。
+5. 在 `onCreate` 回调后定义以下回调：
+
+
+   - `onRequestPermissionsResult` 回调：权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+
+    ```java
+    // 权限申请成功后，创建并加入 scene, 监听远端媒体流并发送本地媒体流
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            String[] permissions,
+            int[] grantResults
+    ){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // 创建并加入场景
+        createAndJoinScene();
+        // 创建流并在场景中发布流
+        createAndPublishStream();
+    }
+    ```
+
+   - `onDestroy` 回调。在 `onDestroy` 回调中离开场景并销毁 AgoraRteSDK 对象。
 
     ```java
     protected void onDestroy() {
@@ -596,7 +629,9 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         /**
          * 离开场景。
          */
-        mScene.leave();
+        if (mScene != null){
+            mScene.leave();
+        }
         // 2. 销毁 AgoraRteSDK 对象
         /**
          * 销毁 AgoraRteSDK 对象。
