@@ -162,7 +162,6 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     import androidx.core.app.ActivityCompat;
     import androidx.core.content.ContextCompat;
     import androidx.appcompat.app.AppCompatActivity;
-    import androidx.core.view.ViewCompat;
 
     // Android 相关类
     import android.Manifest;
