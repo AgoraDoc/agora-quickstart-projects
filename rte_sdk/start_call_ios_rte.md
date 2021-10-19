@@ -319,7 +319,9 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         guard let infos = streamInfos else { return }
         for info in infos {
 
-            rteScene.subscribeRemoteAudio(info.streamId!)
+            let streamId = info.streamId!
+
+            rteScene.subscribeRemoteAudio(streamId)
             let option = AgoraRteVideoSubscribeOptions()
             /**
             * 订阅远端视频。
@@ -327,31 +329,29 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             * @param remoteStreamId 远端流 ID。
             * @param videoSubscribeOptions 订阅选项。
             */
-            rteScene.subscribeRemoteVideo(info.streamId!, videoSubscribeOptions: option)
+            rteScene.subscribeRemoteVideo(streamId, videoSubscribeOptions: option)
 
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
+            let remoteView = UIView()
 
-                let remoteView = UIView()
-                remoteView.tag = Int(info.streamId!)!
-                strongSelf.remoteStackView.addArrangedSubview(remoteView)
+            let parts = streamId.components(separatedBy: "_")
 
-                let videoCanvas = AgoraRtcVideoCanvas()
-                videoCanvas.view = remoteView
-                videoCanvas.renderMode = .fit
-                /**
-                * 设置远端视频渲染画布。
-                * @param remoteStreamId 远端流的 ID。
-                * @param videoCanvas AgoraVideoCanvas 对象。
-                *
-                * @return
-                * 0：方法调用成功。
-                * <0：方法调用失败。
-                */
-                rteScene.setRemoteVideoCanvas(info.streamId!, videoCanvas: videoCanvas)
-            }
+            remoteView.tag = Int(parts[1])!
+            strongSelf.remoteStackView.addArrangedSubview(remoteView)
+
+            let videoCanvas = AgoraRtcVideoCanvas()
+            // videoCanvas.userId = info.userId!
+            videoCanvas.view = remoteView
+            videoCanvas.renderMode = .fit
+            /**
+            * 设置远端视频渲染画布。
+            * @param remoteStreamId 远端流的 ID。
+            * @param videoCanvas AgoraVideoCanvas 对象。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            */
+            rteScene.setRemoteVideoCanvas(streamId, videoCanvas: videoCanvas)
         }
     }
 
@@ -359,21 +359,23 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, remoteStreamDidRemoveWith streamInfos: [AgoraRteStreamInfo]?) {
         guard let infos = streamInfos else { return }
         for info in infos {
+
+            let streamId = info.streamId!
             /**
             * 取消订阅视频。
             *
             * @param remoteStreamId 远端流的 ID。
             */
-            rteScene.unsubscribeRemoteAudio(info.streamId!)
+            rteScene.unsubscribeRemoteAudio(streamId)
 
             /**
             * 取消订阅音频。
             *
             * @param remoteStreamId 远端流的 ID。
             */
-            rteScene.unsubscribeRemoteAudio(info.streamId!)
+            rteScene.unsubscribeRemoteAudio(streamId)
 
-            let viewToRemove = self.remoteStackView.viewWithTag(Int(info.streamId!)!)!
+            let viewToRemove = self.remoteStackView.viewWithTag(Int(streamId)!)!
             self.remoteStackView.removeArrangedSubview(viewToRemove)
             }
         }
