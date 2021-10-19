@@ -209,12 +209,17 @@ extension ViewController: AgoraRteSceneDelegate {
             */
             rteScene.subscribeRemoteVideo(streamId, videoSubscribeOptions: option)
 
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
+            
             let remoteView = UIView()
 
             let parts = streamId.components(separatedBy: "_")
 
             remoteView.tag = Int(parts[1])!
-            self.remoteStackView.addArrangedSubview(remoteView)
+            strongSelf.remoteStackView.addArrangedSubview(remoteView)
 
             let videoCanvas = AgoraRtcVideoCanvas()
             // videoCanvas.userId = info.userId!
@@ -230,6 +235,7 @@ extension ViewController: AgoraRteSceneDelegate {
             * <0：方法调用失败。
             */
             rteScene.setRemoteVideoCanvas(streamId, videoCanvas: videoCanvas)
+            }                          
         }
     }
 
