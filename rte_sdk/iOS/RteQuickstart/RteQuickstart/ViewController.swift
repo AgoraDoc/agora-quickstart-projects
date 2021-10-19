@@ -190,14 +190,16 @@ extension ViewController: AgoraRteSceneDelegate {
 
         print("Connection state has changed to:\(state.rawValue) reason:\(reason.rawValue)")
 
-    }       
+    }
 
     // 远端发流时，订阅流并创建相应的 UIView 在本地进行渲染
     func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, remoteStreamesDidAddWith streamInfos: [AgoraRteStreamInfo]?) {
         guard let infos = streamInfos else { return }
         for info in infos {
 
-            rteScene.subscribeRemoteAudio(info.streamId!)
+            let streamId = info.streamId!
+
+            rteScene.subscribeRemoteAudio(streamId)
             let option = AgoraRteVideoSubscribeOptions()
             /**
             * 订阅远端视频。
@@ -205,32 +207,29 @@ extension ViewController: AgoraRteSceneDelegate {
             * @param remoteStreamId 远端流 ID。
             * @param videoSubscribeOptions 订阅选项。
             */
-            rteScene.subscribeRemoteVideo(info.streamId!, videoSubscribeOptions: option)
+            rteScene.subscribeRemoteVideo(streamId, videoSubscribeOptions: option)
 
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
+            let remoteView = UIView()
 
-                let remoteView = UIView()
-                remoteView.tag = Int(info.streamId!)!
-                strongSelf.remoteStackView.addArrangedSubview(remoteView)
+            let parts = streamId.components(separatedBy: "_")
 
-                let videoCanvas = AgoraRtcVideoCanvas()
-                // videoCanvas.userId = info.userId!
-                videoCanvas.view = remoteView
-                videoCanvas.renderMode = .fit
-                /**
-                * 设置远端视频渲染画布。
-                * @param remoteStreamId 远端流的 ID。
-                * @param videoCanvas AgoraVideoCanvas 对象。
-                *
-                * @return
-                * 0：方法调用成功。
-                * <0：方法调用失败。
-                */
-                rteScene.setRemoteVideoCanvas(info.streamId!, videoCanvas: videoCanvas)
-            }
+            remoteView.tag = Int(parts[1])!
+            strongSelf.remoteStackView.addArrangedSubview(remoteView)
+
+            let videoCanvas = AgoraRtcVideoCanvas()
+            // videoCanvas.userId = info.userId!
+            videoCanvas.view = remoteView
+            videoCanvas.renderMode = .fit
+            /**
+            * 设置远端视频渲染画布。
+            * @param remoteStreamId 远端流的 ID。
+            * @param videoCanvas AgoraVideoCanvas 对象。
+            *
+            * @return
+            * 0：方法调用成功。
+            * <0：方法调用失败。
+            */
+            rteScene.setRemoteVideoCanvas(streamId, videoCanvas: videoCanvas)
         }
     }
 
@@ -238,21 +237,23 @@ extension ViewController: AgoraRteSceneDelegate {
     func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, remoteStreamDidRemoveWith streamInfos: [AgoraRteStreamInfo]?) {
         guard let infos = streamInfos else { return }
         for info in infos {
+
+            let streamId = info.streamId!
             /**
             * 取消订阅视频。
             *
             * @param remoteStreamId 远端流的 ID。
             */
-            rteScene.unsubscribeRemoteAudio(info.streamId!)
+            rteScene.unsubscribeRemoteAudio(streamId)
 
             /**
             * 取消订阅音频。
             *
             * @param remoteStreamId 远端流的 ID。
             */
-            rteScene.unsubscribeRemoteAudio(info.streamId!)
+            rteScene.unsubscribeRemoteAudio(streamId)
 
-            let viewToRemove = self.remoteStackView.viewWithTag(Int(info.streamId!)!)!
+            let viewToRemove = self.remoteStackView.viewWithTag(Int(streamId)!)!
             self.remoteStackView.removeArrangedSubview(viewToRemove)
             }
         }
