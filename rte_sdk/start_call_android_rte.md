@@ -360,9 +360,6 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
                         view.setTag(info.getStreamId());
 
-                        view.setId(ViewCompat.generateViewId());
-                        view.setSaveEnabled(true);
-
                         ViewGroup.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
                         container.addView(view, -1, layoutParams);
 
