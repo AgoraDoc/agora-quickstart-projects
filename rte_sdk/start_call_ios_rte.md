@@ -384,10 +384,17 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 
 ### 编译项目并运行 app
 
-将 iOS 设备连接到你的电脑，并在 Xcode 里点击 Run 'app'。项目安装到你的设备之后，按照以下步骤运行 app：
+在运行项目前，你需要设置签名和开发团队，并添加设备权限。
+
+1. 设置签名、开发团队和有效的 Bundle Identifier。
+
+   1. 在 Xcode 中，进入 **TARGETS > Project Name > Signing & Capabilities > Signing** 菜单，勾选 **Automatically manage signing**。
+   2.仔细阅读弹窗提示，并点击 **Enable Automatic**。
+   3. 成功设置签名后，在 Team 处选择你的开发团队，并确保你设置了有效的 Bundle Identifier。
+
+2. 将 iOS 设备连接到你的电脑，并在 Xcode 里点击 Run 'app'。项目安装到你的设备之后，按照以下步骤运行 app：
 
 - 授予你的 app 麦克风和摄像头权限。
 - 启动 app，你会在本地视图中看到自己。
 - 在另一台设备或模拟器上运行 app，你可以看到在远端视图看到对端设备采集的视频。
 
-> 使用 Agora_Native_SDK_for_iOS_rel.v3.6.200_42059_full_20211008_0040 包测试通过。
