@@ -168,7 +168,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     ```swift
     func createAndJoinScene(){
         // 创建场景
-        let config = AgoraRteSceneConfig()
+        let config = AgoraRteSceneConfg()
         scene = agoraRteSdk.createRteScene(withSceneId: sceneId, sceneConfig: config)
 
         // 设置场景事件 delegate
