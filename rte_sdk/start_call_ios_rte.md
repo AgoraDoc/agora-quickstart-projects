@@ -330,12 +330,17 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             */
             rteScene.subscribeRemoteVideo(streamId, videoSubscribeOptions: option)
 
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
+
             let remoteView = UIView()
 
             let parts = streamId.components(separatedBy: "_")
 
             remoteView.tag = Int(parts[1])!
-            self.remoteStackView.addArrangedSubview(remoteView)
+            strongSelf.remoteStackView.addArrangedSubview(remoteView)
 
             let videoCanvas = AgoraRtcVideoCanvas()
             // videoCanvas.userId = info.userId!
@@ -351,6 +356,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             * <0：方法调用失败。
             */
             rteScene.setRemoteVideoCanvas(streamId, videoCanvas: videoCanvas)
+            }
         }
     }
 
