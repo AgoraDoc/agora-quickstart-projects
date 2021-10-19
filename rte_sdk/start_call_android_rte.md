@@ -221,7 +221,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     private String token = "";
 
     // 流 ID。本示例自动生成随机流 ID
-    private String streamId = "stream" + String.valueOf(new Random().nextInt(1024));
+    private String streamId = "stream_" + String.valueOf(new Random().nextInt(1024));
 
     // 场景对象
     public AgoraRteScene mScene;
