@@ -154,10 +154,15 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         localView = UIView()
         localView.frame = self.view.bounds
 
+        // 创建并添加本地 view
+        self.view.addSubview(localView)
+
         remoteStackView = UIStackView()
         remoteStackView.frame = CGRect(x: self.view.bounds.width - 180, y: 0, width: 180, height: 360)
         remoteStackView.axis = .vertical
         remoteStackView.distribution = .fillEqually
+
+        // 创建并添加远端 view
         self.view.addSubview(remoteStackView)
 
     }

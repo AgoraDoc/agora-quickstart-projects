@@ -67,10 +67,15 @@ class ViewController: UIViewController {
         localView = UIView()
         localView.frame = self.view.bounds
 
+        // 创建并添加本地 view
+        self.view.addSubview(localView)
+
         remoteStackView = UIStackView()
         remoteStackView.frame = CGRect(x: self.view.bounds.width - 180, y: 0, width: 180, height: 360)
         remoteStackView.axis = .vertical
         remoteStackView.distribution = .fillEqually
+
+        // 创建并添加远端 view
         self.view.addSubview(remoteStackView)
 
     }
@@ -84,8 +89,7 @@ class ViewController: UIViewController {
         // 设置场景事件 delegate
         scene?.setSceneDelegate(self)
 
-        // 创建并添加本地 view
-        self.view.addSubview(localView)
+
 
         // 加入场景
         let options = AgoraRteJoinOptions()
@@ -213,7 +217,7 @@ extension ViewController: AgoraRteSceneDelegate {
                 guard let strongSelf = self else {
                     return
                 }
-            
+
             let remoteView = UIView()
 
             let parts = streamId.components(separatedBy: "_")
@@ -235,7 +239,7 @@ extension ViewController: AgoraRteSceneDelegate {
             * <0：方法调用失败。
             */
             rteScene.setRemoteVideoCanvas(streamId, videoCanvas: videoCanvas)
-            }                          
+            }
         }
     }
 
