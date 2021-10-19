@@ -239,6 +239,8 @@ extension ViewController: AgoraRteSceneDelegate {
         for info in infos {
 
             let streamId = info.streamId!
+
+            let parts = streamId.components(separatedBy: "_")
             /**
             * 取消订阅视频。
             *
@@ -253,7 +255,7 @@ extension ViewController: AgoraRteSceneDelegate {
             */
             rteScene.unsubscribeRemoteAudio(streamId)
 
-            let viewToRemove = self.remoteStackView.viewWithTag(Int(streamId)!)!
+            let viewToRemove = self.remoteStackView.viewWithTag(Int(parts[1])!)!
             self.remoteStackView.removeArrangedSubview(viewToRemove)
             }
         }
