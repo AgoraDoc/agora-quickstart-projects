@@ -339,7 +339,6 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
                 strongSelf.remoteStackView.addArrangedSubview(remoteView)
 
                 let videoCanvas = AgoraRtcVideoCanvas()
-                // videoCanvas.userId = info.userId!
                 videoCanvas.view = remoteView
                 videoCanvas.renderMode = .fit
                 /**
