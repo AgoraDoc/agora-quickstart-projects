@@ -361,6 +361,8 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
         for info in infos {
 
             let streamId = info.streamId!
+
+            let parts = streamId.components(separatedBy: "_")
             /**
             * 取消订阅视频。
             *
@@ -375,7 +377,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             */
             rteScene.unsubscribeRemoteAudio(streamId)
 
-            let viewToRemove = self.remoteStackView.viewWithTag(Int(streamId)!)!
+            let viewToRemove = self.remoteStackView.viewWithTag(Int(parts[1])!)!
             self.remoteStackView.removeArrangedSubview(viewToRemove)
             }
         }
