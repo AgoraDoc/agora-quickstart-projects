@@ -214,7 +214,7 @@ extension ViewController: AgoraRteSceneDelegate {
             let parts = streamId.components(separatedBy: "_")
 
             remoteView.tag = Int(parts[1])!
-            strongSelf.remoteStackView.addArrangedSubview(remoteView)
+            self.remoteStackView.addArrangedSubview(remoteView)
 
             let videoCanvas = AgoraRtcVideoCanvas()
             // videoCanvas.userId = info.userId!

@@ -311,7 +311,6 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
     // 返回连接状态
     func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, connectionStateDidChangeFromOldState oldState: AgoraConnectionState, toNewState state: AgoraConnectionState, with reason: AgoraConnectionChangedReason) {
         print("Connection state has changed to:\(state.rawValue) reason:\(reason.rawValue)")
-        }
     }
 
     // 远端发流时，订阅流并创建相应的 UIView 在本地进行渲染
@@ -336,7 +335,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             let parts = streamId.components(separatedBy: "_")
 
             remoteView.tag = Int(parts[1])!
-            strongSelf.remoteStackView.addArrangedSubview(remoteView)
+            self.remoteStackView.addArrangedSubview(remoteView)
 
             let videoCanvas = AgoraRtcVideoCanvas()
             // videoCanvas.userId = info.userId!
