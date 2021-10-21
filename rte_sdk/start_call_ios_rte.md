@@ -356,7 +356,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
             * <0：方法调用失败。
             */
             rteScene.setRemoteVideoCanvas(streamId, videoCanvas: videoCanvas)
-        
+
         }
     }
 
@@ -405,4 +405,3 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
 - 授予你的 app 麦克风和摄像头权限。
 - 启动 app，你会在本地视图中看到自己。
 - 在另一台设备或模拟器上运行 app，你可以看到在远端视图看到对端设备采集的视频。
-
