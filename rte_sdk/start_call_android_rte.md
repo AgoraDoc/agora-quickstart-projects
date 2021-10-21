@@ -453,6 +453,7 @@ Agora 会给每个项目自动分配一个 App ID 作为项目唯一标识。
          */
         mScene.join(userId, token, options);
         }
+        ```
 
     - `createAndPublishStream`：创建并发布流。
 

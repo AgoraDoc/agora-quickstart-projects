@@ -36,21 +36,24 @@ class ViewController: UIViewController {
 
 
     override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        initSdk()
-        createAndJoinScene()
-        createAndPublishStream()
-    }
+            super.viewDidLoad()
+            // Do any additional setup after loading the view.
+            // 1. 初始化 SDK
+            initSdk()
+            // 2. 加入场景
+            createAndJoinScene()
+            // 3. 开始发流
+            createAndPublishStream()
+        }
 
 
     override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        // 离开场景
-        scene?.leave()
-        // 销毁 SDK 对象
-        AgoraRteSdk.destroy()
-    }
+            super.viewDidDisappear(animated)
+            // 离开场景
+            scene?.leave()
+            // 销毁 SDK 对象
+            AgoraRteSdk.destroy()
+        }
 
     func initSdk(){
         // 初始化 AgoraRteSdk 对象
@@ -83,13 +86,14 @@ class ViewController: UIViewController {
     func createAndJoinScene(){
         // 创建场景
         let config = AgoraRteSceneConfg()
-
         scene = agoraRteSdk.createRteScene(withSceneId: sceneId, sceneConfig: config)
 
         // 设置场景事件 delegate
         scene?.setSceneDelegate(self)
 
+        // 创建并添加本地 view
 
+        self.view.addSubview(localView)
 
         // 加入场景
         let options = AgoraRteJoinOptions()
@@ -189,11 +193,9 @@ class ViewController: UIViewController {
 
 extension ViewController: AgoraRteSceneDelegate {
 
-    // 当连接状态为 connected 时，开始发流
+    // 返回连接状态
     func agoraRteScene(_ rteScene: AgoraRteSceneProtocol, connectionStateDidChangeFromOldState oldState: AgoraConnectionState, toNewState state: AgoraConnectionState, with reason: AgoraConnectionChangedReason) {
-
         print("Connection state has changed to:\(state.rawValue) reason:\(reason.rawValue)")
-
     }
 
     // 远端发流时，订阅流并创建相应的 UIView 在本地进行渲染
@@ -212,11 +214,6 @@ extension ViewController: AgoraRteSceneDelegate {
             * @param videoSubscribeOptions 订阅选项。
             */
             rteScene.subscribeRemoteVideo(streamId, videoSubscribeOptions: option)
-
-            DispatchQueue.main.async { [weak self] in
-                guard let strongSelf = self else {
-                    return
-                }
 
             let remoteView = UIView()
 
@@ -239,7 +236,7 @@ extension ViewController: AgoraRteSceneDelegate {
             * <0：方法调用失败。
             */
             rteScene.setRemoteVideoCanvas(streamId, videoCanvas: videoCanvas)
-            }
+
         }
     }
 
@@ -270,4 +267,4 @@ extension ViewController: AgoraRteSceneDelegate {
             }
         }
 
-}
+    }
