@@ -1,4 +1,4 @@
-# 五分钟实现摄像头流和屏幕共享流的同时发送
+# 十分钟实现摄像头流和屏幕共享流的同时发送
 
 
 本文介绍如何通过极简代码快速实现摄像头流和屏幕共享流的同时发送。
@@ -6,7 +6,7 @@
 
 ## 前提条件
 
-你已经根据 [五分钟构建视频通话应用](start_call_android_rte.md) 搭建了一个基础的视频通话应用。
+你已经根据 [十分钟构建视频通话应用](https://gitee.com/yamasite/RTE-Workshop-Tutorial/blob/master/start_call_android_rte.md) 搭建了一个基础的视频通话应用。
 
 > 在此教程中，Android 系统需要 Android 5 或更高版本。
 > 实测在夜神模拟器/雷电模拟器/ Android Studio 自带模拟器（Android 5）环境下运行正常。
